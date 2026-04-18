@@ -1,0 +1,43 @@
+---
+title: Web app tour
+description: What lives where in the Datost web app.
+---
+
+The Datost web app at [app.datost.com](https://app.datost.com) is where you do longer-form analysis, manage the workspace, and review anything that happened in Slack.
+
+## The main surfaces
+
+<CardGroup cols={2}>
+  <Card title="Context" icon="messages" href="/capabilities/contexts">
+    The default landing page. A conversational AI surface for exploring data — think of it as a longer-form Slack thread with better tooling.
+  </Card>
+  <Card title="Dashboards" icon="chart-bar" href="/capabilities/dashboards">
+    Pinned collections of charts and numbers. Build from any conversation result.
+  </Card>
+  <Card title="Metrics" icon="chart-line" href="/capabilities/tracked-metrics">
+    Tracked time-series with monitors and AI-driven investigations when something looks off.
+  </Card>
+  <Card title="Schedules" icon="calendar-clock" href="/capabilities/scheduled-reports">
+    Recurring research jobs delivered to Slack.
+  </Card>
+</CardGroup>
+
+## Admin & workspace
+
+- **Admin** — data source connections, role management, Slack and Google Chat setup, knowledge sources, tracked-metric configuration. Org admins only.
+- **Notebooks** — Python notebooks in a sandbox, with access to your connected data. Feature-gated; ask if your plan includes it.
+- **Slack response pages** — every Slack query has a shareable web page showing the full transcript, SQL, results, and charts. See [Slack responses](/capabilities/slack-responses).
+
+## Who sees what
+
+Your [role and permissions](/workspace/roles-and-permissions) govern which data sources and tables you can query. The same rules apply whether you're in the web app or Slack — if you can't access a table, the AI can't query it on your behalf either.
+
+## Tips
+
+<Tip>
+  Most analysis starts in Slack as a quick question. When it deepens, open the Slack response in the web app to branch into a longer Context, pin a chart to a dashboard, or turn a result into a tracked metric.
+</Tip>
+
+<Note>
+  Datost staff see an additional **Internal** surface for debugging org issues. This is invisible to customers and cannot access customer data without explicit grants.
+</Note>

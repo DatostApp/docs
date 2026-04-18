@@ -1,0 +1,67 @@
+---
+title: "Google Chat"
+description: "Use Datost as a Google Chat app to ask questions of your data from any space or DM."
+---
+
+Datost is Slack-native, but the same AI data analyst is also available as a Google Chat app. Add Datost to a space or message it directly, and it answers questions against your connected warehouses and business tools — no context switch required.
+
+## What you get
+
+- Mention `@Datost` in any Google Chat space to ask a question; the reply is posted in the same thread.
+- Direct message Datost for private, one-off analysis.
+- Per-user rate limits (default 20 queries/hour, 100/day) that you can tune per connection.
+- Allow-list or block-list specific spaces on a connection so Datost only responds where you want.
+
+<Note>
+  One Google Chat space maps to one Datost organization. The first workspace that claims a space owns it.
+</Note>
+
+## Install flow
+
+Datost uses a just-in-time install model driven from inside Google Chat.
+
+<Steps>
+  <Step title="Add Datost to a space or DM">
+    A Google Workspace admin installs the Datost Chat app from the Google Workspace Marketplace, then adds it to a space or opens a DM with it.
+  </Step>
+  <Step title="Mention Datost">
+    The first `@Datost` mention in an unclaimed space creates a pending installation and replies with a one-time setup link scoped to that space.
+  </Step>
+  <Step title="Claim the space">
+    Open the setup link while signed in to Datost. The space is bound to your current Datost organization and activated immediately.
+  </Step>
+  <Step title="Ask away">
+    Mention Datost with a question in any thread, or DM it directly. Responses stream back into the same thread as card messages.
+  </Step>
+</Steps>
+
+<Warning>
+  Setup tokens expire after 24 hours. If the link expires, mention Datost in the space again to generate a new one.
+</Warning>
+
+## Admin install vs per-user
+
+The Marketplace app is installed once per Google Workspace by an admin. Individual users do not need to authenticate separately — any user in an installed space can mention Datost, subject to your allow-list and rate limits. Per-space claiming to a Datost org is a one-time action taken by whoever clicks the setup link first.
+
+## Parity with Slack
+
+| Capability | Slack | Google Chat |
+| --- | --- | --- |
+| Mentions in channels/spaces | Yes | Yes |
+| Direct messages | Yes | Yes |
+| Threaded replies | Yes | Yes |
+| Per-user rate limits | Yes | Yes |
+| Space/channel allow-list | Yes | Yes |
+
+## Current limitations
+
+Google Chat is a lighter-weight surface than Slack. A few Slack-only capabilities are not yet available:
+
+- **No slash commands.** Scheduled metrics, subscriptions, and `/datost` utilities are Slack-only today.
+- **No interactive thread actions.** Button-driven follow-ups (pin, share, rerun) that Slack exposes are not wired up in Chat.
+- **No proactive posts.** Datost only replies when mentioned or DM'd; it does not push alerts into spaces.
+- **Cards, not Block Kit.** Responses render as Google Chat `cardsV2`, which supports a narrower set of formatting than Slack Block Kit.
+
+<Note>
+  Need a Slack-only feature in Chat? Let us know at [support@datost.com](mailto:support@datost.com) — we prioritize Chat parity based on customer demand.
+</Note>

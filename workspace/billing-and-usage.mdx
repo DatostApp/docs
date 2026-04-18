@@ -1,0 +1,69 @@
+---
+title: "Billing & Usage"
+description: "Find your plan, track usage, and manage billing for your Datost workspace."
+---
+
+Datost meters workspace activity against your plan so you can see how your team is using the AI data analyst and stay ahead of limits.
+
+## Where to find billing
+
+Billing lives in the workspace admin panel. Only workspace admins can open the billing section or manage the subscription.
+
+<Steps>
+  <Step title="Open the admin panel">
+    Sign in at [app.datost.com](https://app.datost.com) and open **Settings > Billing**.
+  </Step>
+  <Step title="Review your plan">
+    The top of the page shows your current plan, renewal date, and seat count.
+  </Step>
+  <Step title="Manage payment">
+    Click **Manage billing** to open the Stripe customer portal, where you can update your card, download invoices, or change your plan.
+  </Step>
+</Steps>
+
+<Note>
+  If the **Manage billing** button is hidden, your workspace does not yet have a Stripe account linked. Reach out to support and we'll set one up.
+</Note>
+
+## What Datost tracks
+
+Usage is recorded per organization for the current calendar month and reset on the 1st. The admin panel surfaces each of these metrics:
+
+- **Queries executed** — questions answered by Datost in Slack, Google Chat, or the web app.
+- **AI requests** — calls to the underlying model, including follow-ups, clarifications, and agent tool calls.
+- **Seats** — members activated against your license. Each license has a fixed seat count and tracks active devices.
+- **Secrets stored** — credentials and connection strings saved in your workspace secret store.
+
+Datost also applies **short-window rate limits** on Slack and Google Chat (per user and per channel) to prevent runaway threads. These reset hourly and daily automatically; you don't need to manage them.
+
+## Plan limits
+
+Every plan defines monthly allowances for queries, AI requests, secrets, and seats. The exact numbers depend on your plan and are shown inline on the billing page next to the live counter.
+
+<Tip>
+  If a metric shows `—` instead of a number, that metric is unlimited on your plan.
+</Tip>
+
+## When you approach a limit
+
+Datost uses a mix of soft and hard limits:
+
+- **Soft limits (queries, AI requests):** when you cross ~80% of a monthly allowance, admins see a banner in the admin panel and a note in Slack replies. Usage keeps working so your team isn't blocked mid-investigation.
+- **Hard limits (seats, secrets):** you can't add a new member or save a new secret once the ceiling is reached. Remove an unused seat or secret, or upgrade to raise the cap.
+- **Rate limits (per-user, per-channel Slack):** if someone trips the hourly or daily cap, Datost replies with a short "try again later" message and resets on the next window.
+
+<Note>
+  Usage counters roll over on the first of each month. Rate-limit counters reset hourly and daily — no manual action required.
+</Note>
+
+## Changing plans or getting pricing
+
+We're happy to walk through what fits your team:
+
+- **Upgrade or downgrade:** use **Manage billing** in the admin panel to switch between self-serve plans.
+- **Enterprise, custom seats, or annual pricing:** email [sales@datost.com](mailto:sales@datost.com).
+- **Billing questions or invoice issues:** email [support@datost.com](mailto:support@datost.com).
+
+<Tip>
+  Invite your finance team as a workspace admin so they can pull invoices directly from the Stripe portal without going through an engineer.
+</Tip>

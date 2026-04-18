@@ -1,0 +1,71 @@
+---
+title: "Notebooks"
+description: "Run Python against your connected data in a secure, sandboxed environment — right inside Datost."
+---
+
+<Note>
+  Notebooks are currently feature-flagged (`NOTEBOOK_MODE`). Availability depends on your plan — reach out to your Datost contact if you'd like it enabled for your workspace.
+</Note>
+
+Datost Notebooks give your team a full Python environment that knows about your data. Each notebook runs in an isolated [E2B](https://e2b.dev) sandbox, so heavy analysis, ad-hoc scripting, and exploratory work stay cleanly separated from your warehouse and from other notebooks.
+
+## What you get
+
+- **A real Python kernel** — not a sandboxed subset. Install packages, import anything, and iterate on cells just like Jupyter.
+- **Direct access to your connected data** — bind a data source to a notebook and Datost auto-injects a `datost` Python client you can use with `from datost import query`.
+- **Two editing modes** — Datost's native cell UI, or a full embedded **JupyterLab** session for power users.
+- **Persistent notebooks, ephemeral sessions** — your cells, outputs, and generated files are saved; the compute sandbox spins down after 30 minutes of inactivity and resumes on demand.
+
+## Creating a notebook
+
+<Steps>
+  <Step title="Open the Notebooks page">
+    Navigate to **Notebooks** in the Datost sidebar and click **New Notebook**.
+  </Step>
+  <Step title="Bind a data source (optional)">
+    From the header, pick any healthy connected warehouse. Once bound, Datost writes a `datost.py` client into the sandbox and pre-installs `requests` and `pandas`.
+  </Step>
+  <Step title="Add and run cells">
+    Add code or markdown cells, drag to reorder, and hit run. Each execution streams stdout/stderr, rich outputs (PNG, JPEG, SVG, HTML, text), and errors back into the cell.
+  </Step>
+  <Step title="Switch to JupyterLab (optional)">
+    Toggle **JupyterLab** in the header to open the same notebook inside a full embedded Jupyter server backed by the same sandbox.
+  </Step>
+</Steps>
+
+## Querying your data
+
+With a data source bound, run SQL straight from Python:
+
+```python
+from datost import query
+
+df = query("""
+  select date, revenue
+  from core.daily_revenue
+  where date >= current_date - 30
+""")
+df.head()
+```
+
+Results come back as a pandas DataFrame — chart them with matplotlib, slice them with pandas, or hand them to any library you `pip install`.
+
+## Runtime and libraries
+
+<Tip>
+  Pre-installed at session start: `pandas`, `requests`, `jupyterlab`, `ipykernel`. Install anything else with `!pip install <package>` in a cell, or use the install packages action.
+</Tip>
+
+The runtime is standard CPython 3 running inside E2B's Code Interpreter. Sessions auto-timeout after **30 minutes** of inactivity and can be manually ended from the header.
+
+## Outputs, files, and sharing
+
+- **Rich outputs** (tables, charts, HTML) are rendered inline and stored on each cell so they persist between sessions.
+- **Generated files** written to the sandbox are tracked in `notebookOutputFiles` and available for download.
+- **Notebook state** (cells, order, outputs, bound data source) is saved automatically — reopen a notebook any time and pick up where you left off.
+
+<Warning>
+  The sandbox filesystem is ephemeral. Anything not saved as a notebook output file will be lost when the session ends. For long-running results, persist them to your warehouse or download them.
+</Warning>
+
+Notebooks are scoped to your organization, so any teammate with access to your Datost workspace can open, run, and edit them.

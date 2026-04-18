@@ -1,0 +1,76 @@
+---
+title: "Databricks"
+description: "Connect Datost to a Databricks SQL Warehouse so your team can query Unity Catalog tables from Slack."
+---
+
+Datost connects to Databricks through the SQL Statement Execution API. Once the warehouse is connected, Datost can list tables in `INFORMATION_SCHEMA`, read column types, and run read-only queries on behalf of Slack users.
+
+## What it unlocks
+
+- Natural-language querying over any catalog and schema your warehouse can reach, including Unity Catalog.
+- Schema introspection across tables and views (the `VIEW` table type is recognized), powered by a single `INFORMATION_SCHEMA` pass so large workspaces load without N+1 fan-out.
+- Scoped access: pin the connection to a specific catalog and default schema, or leave them blank for workspace defaults.
+
+## Prerequisites
+
+<Note>
+  You need admin access to the Databricks workspace to create a SQL Warehouse and mint a token.
+</Note>
+
+- **Workspace host** in the form `dbc-xxxxxxxx-xxxx.cloud.databricks.com` (no `https://` prefix).
+- **SQL Warehouse HTTP path** in the form `/sql/1.0/warehouses/{id}`. Datost validates this pattern and extracts the warehouse ID.
+- **Personal Access Token** (PAT) from **User Settings → Developer → Access Tokens**, or a service-principal token with equivalent grants.
+- Optional: a default **catalog** (for example `main` or `samples`) to scope the connection.
+
+## Connect in the admin panel
+
+<Steps>
+  <Step title="Open Add Data Source">
+    In the Datost admin, go to **Data Sources → Add Data Source** and pick **Databricks**.
+  </Step>
+  <Step title="Enter the workspace host">
+    Paste the workspace URL, for example `dbc-xxxxxxxx-xxxx.cloud.databricks.com`. This is the host Datost will call for the SQL Statement Execution API.
+  </Step>
+  <Step title="Paste the HTTP path">
+    From the SQL Warehouse's **Connection Details** tab, copy the HTTP path (for example `/sql/1.0/warehouses/abc123...`).
+  </Step>
+  <Step title="Add the access token">
+    Paste the PAT (it begins with `dapi`). Datost stores it encrypted and only uses it to execute statements against this warehouse.
+  </Step>
+  <Step title="Optionally pin a catalog">
+    Set a default catalog if you want to scope the connection. Leave blank to use the workspace default.
+  </Step>
+  <Step title="Test and save">
+    Datost runs `SELECT 1` to verify the connection before saving. A successful test confirms the token, host, and warehouse ID are valid.
+  </Step>
+</Steps>
+
+## Permissions
+
+The token's identity needs read access to anything you want Slack users to query:
+
+- `USE CATALOG` on each catalog Datost should see.
+- `USE SCHEMA` on each schema within those catalogs.
+- `SELECT` on the tables and views you want exposed.
+- Read access to `INFORMATION_SCHEMA` in each catalog, which Datost uses to list tables and columns.
+
+<Warning>
+  Datost executes whatever SQL the warehouse authorizes for this token. Scope the principal to read-only grants on only the catalogs and schemas your team should query.
+</Warning>
+
+## Limitations
+
+<AccordionGroup>
+  <Accordion title="SQL Warehouses only">
+    The integration targets Databricks **SQL Warehouses** via the `/api/2.0/sql/statements` endpoint. All-purpose clusters and job clusters are not supported as connection targets.
+  </Accordion>
+  <Accordion title="Serverless vs classic">
+    Both serverless and classic SQL Warehouses work. Serverless starts faster, which makes the first query after an idle period feel more responsive; classic warehouses may cold-start before the 30-second statement wait window.
+  </Accordion>
+  <Accordion title="Row limits and truncation">
+    Statements run with `format: JSON_ARRAY` and `disposition: INLINE`. Query results are capped (default 1,000 rows) and flagged as `truncated` when the cap is hit. Schema introspection uses higher caps internally.
+  </Accordion>
+  <Accordion title="Connection caching">
+    Datost caches up to 50 warehouse client entries for 30 minutes each. Rotating a PAT requires re-saving the data source so the cached entry is invalidated.
+  </Accordion>
+</AccordionGroup>

@@ -1,0 +1,66 @@
+---
+title: "Coda"
+description: "Index Coda docs, pages, and tables as a knowledge source for the Slack agent."
+---
+
+Coda is a **knowledge source**, not a live query integration. Datost syncs your Coda docs, chunks pages and tables into embeddings, and uses them as retrieval context when answering questions in Slack. Use this to teach the agent your playbooks, policy docs, metric definitions, and team wikis — not for numeric answers that live in your warehouse.
+
+<Note>
+  Coda content is vector-indexed and semantically searched. It is never executed as a query. For transactional data, connect a [warehouse](/integrations/warehouses/postgresql) instead.
+</Note>
+
+## What gets synced
+
+When a connection runs, Datost walks every doc your API token can read and indexes:
+
+- **Pages** — exported to markdown, split on heading boundaries into ~1,000-character chunks with 200 characters of overlap. The section path (e.g. `Policy > No-shows`) is preserved on each chunk.
+- **Tables** — converted to markdown tables, then chunked the same way. Empty tables are skipped.
+- **Doc and page metadata** — titles, URLs, and IDs, so the agent can cite and deep-link back to the source.
+
+Each chunk is embedded with OpenAI `text-embedding-3-small` (1536 dims) and stored alongside a full-text search index.
+
+## Get a Coda API token
+
+<Steps>
+  <Step title="Open your Coda account page">
+    Go to [coda.io/account](https://coda.io/account) while signed in as a user who can see every doc you want Datost to index.
+  </Step>
+  <Step title="Generate an API token">
+    Under **API Settings**, click **Generate API token**. Give it a name like `Datost` and copy the token — you will not see it again.
+  </Step>
+</Steps>
+
+<Tip>
+  The token inherits the permissions of the user who created it. Create the token from a service account or a user with access to exactly the docs you want indexed — nothing more.
+</Tip>
+
+## Connect from the admin panel
+
+<Steps>
+  <Step title="Open Knowledge sources">
+    In the Datost web app, go to **Knowledge sources** and click **Add connection → Coda**.
+  </Step>
+  <Step title="Name the workspace">
+    Give the connection a name (e.g. `Ops Wiki`) and an optional description. The description is fed to the agent so it knows when to reach for this source.
+  </Step>
+  <Step title="Paste your API token and test">
+    Paste the token and click **Test**. Datost calls `/whoami` against Coda and echoes back the authenticated username.
+  </Step>
+  <Step title="Save and sync">
+    Click **Add Connection**. The first sync is enqueued automatically — you can watch progress (docs processed, pages processed, chunks created) on the connection detail page.
+  </Step>
+</Steps>
+
+## Sync cadence
+
+Initial syncs index every doc the token can access. Re-running a sync is idempotent: Datost skips pages whose content hash is unchanged and only re-embeds what has actually been edited. Trigger a manual re-sync from the connection detail page whenever you want to pick up new content; scheduled re-syncs run in the background.
+
+Pages that Coda refuses to export (locked, protected, or unsupported content types) are logged to the sync job's skipped-pages list so you can review them.
+
+## Limitations
+
+- Token-scoped, not OAuth — if the token's owner loses access to a doc, Datost loses it too.
+- Non-exportable pages (e.g. embedded Packs without markdown output) are skipped.
+- Table syncs snapshot rows at sync time; they do not reflect live edits between syncs.
+- Page-level selection is coarse: Datost indexes everything the token can see. Scope via the API token rather than in-app filters.
+- Chunks are retrieved by semantic similarity, so very short or ambiguous pages may be outranked by longer, keyword-rich ones.

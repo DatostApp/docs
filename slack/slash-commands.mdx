@@ -1,0 +1,115 @@
+---
+title: "Slash Commands"
+description: "Complete reference for the /datost slash command — link your account, schedule reports, and manage existing jobs from Slack."
+---
+
+Datost registers a single top-level slash command, `/datost`, with a handful of subcommands for account linking and schedule management. Every response is **ephemeral** (only you see it) unless noted otherwise. If you forget a subcommand, run `/datost help`.
+
+<Note>
+To ask Datost a question, you **mention** the bot (`@Datost what was revenue last week?`) — you do not use a slash command. Slash commands are reserved for account and schedule management.
+</Note>
+
+## Quick reference
+
+<CodeGroup>
+
+```bash Account
+/datost link
+```
+
+```bash Schedule
+/datost schedule
+/datost schedule list
+/datost schedule delete <id>
+/datost schedule pause <id>
+/datost schedule resume <id>
+/datost schedule help
+```
+
+```bash Help
+/datost help
+```
+
+</CodeGroup>
+
+## Commands
+
+<AccordionGroup>
+
+<Accordion title="/datost link — connect your Slack user to Datost">
+Generates a one-time link that ties your Slack user ID to your Datost account. Linking enables personalized features like creating dashboards, saving notebooks to your workspace, and attributing scheduled reports to you.
+
+**Arguments:** none.
+
+**Response:** an ephemeral message containing a "Connect your account" link. The link is valid for **15 minutes**; if it expires, just run `/datost link` again.
+
+<Tip>
+You only need to link once per Slack workspace. If your admin hasn't connected the workspace yet, Datost will return an ephemeral error pointing them to the web app.
+</Tip>
+</Accordion>
+
+<Accordion title="/datost schedule — create a scheduled report">
+Opens the **schedule modal** so you can build a recurring research job — pick a channel, cadence (daily, weekly, or monthly), time of day, and the question you want answered. Datost will deliver the result as a channel message on the schedule you choose.
+
+**Arguments:** none (aliased to `/datost schedule create`).
+
+**Response:** a Slack modal dialog. Times are pre-filled from your Slack profile timezone when available. On submit, the job is saved and will fire on the next matching tick.
+</Accordion>
+
+<Accordion title="/datost schedule list — show active schedules">
+Lists all scheduled research jobs for your workspace, including their ID, cadence, target channel, next run time, and paused/active state.
+
+**Arguments:** none.
+
+**Response:** an ephemeral Block Kit message with one row per schedule. Copy the ID from the list to use with `delete`, `pause`, or `resume`.
+</Accordion>
+
+<Accordion title="/datost schedule delete <id> — remove a schedule">
+Permanently deletes the schedule with the given ID. This cannot be undone — if you only want to stop it temporarily, use `pause` instead.
+
+**Arguments:** `<id>` — the schedule ID from `/datost schedule list`.
+
+**Response:** ephemeral confirmation (`Schedule <id> deleted.`) or a not-found message if the ID doesn't match a schedule in your workspace.
+</Accordion>
+
+<Accordion title="/datost schedule pause <id> — pause a schedule">
+Pauses a schedule without deleting it. Paused schedules stay in the list and stop firing until resumed.
+
+**Arguments:** `<id>` — the schedule ID.
+
+**Response:** ephemeral confirmation, or a message if the schedule is already paused or not found.
+</Accordion>
+
+<Accordion title="/datost schedule resume <id> — resume a paused schedule">
+Resumes a previously paused schedule. The next run will be calculated from the schedule's cadence, not from the time it was paused.
+
+**Arguments:** `<id>` — the schedule ID.
+
+**Response:** ephemeral confirmation, or a message if the schedule isn't paused or not found.
+</Accordion>
+
+<Accordion title="/datost schedule help — schedule subcommand reference">
+Prints the list of schedule subcommands and their usage as an ephemeral message. Useful when you're in Slack and don't want to context-switch to these docs.
+</Accordion>
+
+<Accordion title="/datost help — top-level command reference">
+Prints the full `/datost` command reference as an ephemeral message. Running `/datost` with no arguments, or with an unrecognized subcommand, shows the same help text.
+</Accordion>
+
+</AccordionGroup>
+
+## Response types
+
+Datost follows Slack's standard response conventions:
+
+- **Ephemeral message** — most commands. Only you see the reply; nothing is posted to the channel.
+- **Modal** — `/datost schedule` (no subcommand) opens a dialog. Requires a valid `trigger_id`, which Slack only honors for ~3 seconds, so run the command fresh if the modal fails to open.
+- **Channel message** — scheduled reports themselves post to the channel you selected when creating the schedule. The slash commands that manage them do not.
+
+## Dev variant
+
+Datost's internal team also registers `/datost-dev`, which repoints the dev Slack app's event subscription URL to a given preview backend (for example, a Railway PR preview). It's gated behind the dev app's signing secret and is not available to customer workspaces — external users can safely ignore it.
+
+<Note>
+Something not working? Re-run `/datost link` first — many issues are just an expired or missing account link. If the problem persists, reach out to support with the schedule ID (if relevant) and the approximate time you ran the command.
+</Note>

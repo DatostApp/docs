@@ -1,0 +1,49 @@
+---
+title: Slack tour
+description: The four ways to use Datost inside Slack.
+---
+
+Datost is Slack-native — most of the product happens without leaving your workspace. Here's the map.
+
+## The four interactions
+
+<CardGroup cols={2}>
+  <Card title="@mention in a channel or thread" icon="at" href="/slack/mentions-and-threads">
+    `@Datost how many signups last week?` Works in channels Datost is a member of. Follow up in the thread to keep context.
+  </Card>
+  <Card title="Direct message" icon="message" href="/slack/mentions-and-threads">
+    DM Datost for private questions. No channel invite needed.
+  </Card>
+  <Card title="Slash commands" icon="terminal" href="/slack/slash-commands">
+    `/datost link`, `/datost schedule`, `/datost help` for account linking, scheduled reports, and more.
+  </Card>
+  <Card title="Scheduled reports" icon="calendar-clock" href="/capabilities/scheduled-reports">
+    Recurring AI research jobs posted to channels, DMs, or group chats on your cadence.
+  </Card>
+</CardGroup>
+
+## Before you ask
+
+<Steps>
+  <Step title="Link your Slack identity">
+    Run `/datost link` once to connect your Slack user to your Datost account. Without this, Datost can't enforce your [role permissions](/workspace/roles-and-permissions).
+  </Step>
+  <Step title="Invite Datost to the channel">
+    `/invite @Datost` in any channel you want it to work in.
+  </Step>
+  <Step title="Ask">
+    `@Datost ...` and watch the thread.
+  </Step>
+</Steps>
+
+## While a query is running
+
+- Datost reacts to your message with a progress indicator.
+- React with ❌ to cancel a running query. See [mentions and threads](/slack/mentions-and-threads) for the full list of recognized reactions.
+- Results post in the thread: answer, chart, underlying SQL, and a link to the full response page in the web app.
+
+## When something goes wrong
+
+- Datost couldn't find the data → the tables may be gated by your role. Ask an admin to grant access, or see [roles & permissions](/workspace/roles-and-permissions).
+- Query timeout → try narrowing the question (shorter date range, fewer fields).
+- Still stuck → [support](https://datost.com/support).

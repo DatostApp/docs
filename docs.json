@@ -1,13 +1,25 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "name": "Mint Starter Kit",
+  "name": "Datost",
+  "description": "Slack-native AI data analyst — documentation, guides, and references.",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#2CB581",
+    "light": "#4CC998",
+    "dark": "#1F8A62"
   },
   "favicon": "/favicon.svg",
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg",
+    "href": "https://datost.com"
+  },
+  "background": {
+    "color": {
+      "light": "#F5F1EA",
+      "dark": "#1E1915"
+    }
+  },
   "navigation": {
     "tabs": [
       {
@@ -16,53 +28,81 @@
           {
             "group": "Getting started",
             "pages": [
-              "index",
-              "quickstart",
-              "development"
+              "introduction",
+              "getting-started/quickstart",
+              "getting-started/web-app-tour",
+              "getting-started/slack-tour"
             ]
           },
           {
-            "group": "Customization",
+            "group": "Capabilities",
             "pages": [
-              "essentials/settings",
-              "essentials/navigation"
+              "capabilities/contexts",
+              "capabilities/dashboards",
+              "capabilities/tracked-metrics",
+              "capabilities/scheduled-reports",
+              "capabilities/notebooks",
+              "capabilities/slack-responses"
             ]
           },
           {
-            "group": "Writing content",
+            "group": "Slack",
             "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/reusable-snippets"
+              "slack/overview",
+              "slack/slash-commands",
+              "slack/mentions-and-threads"
             ]
           },
           {
-            "group": "AI tools",
+            "group": "Integrations — warehouses & databases",
             "pages": [
-              "ai-tools/cursor",
-              "ai-tools/claude-code",
-              "ai-tools/windsurf"
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "API reference",
-        "groups": [
-          {
-            "group": "API documentation",
-            "pages": [
-              "api-reference/introduction"
+              "integrations/warehouses/overview",
+              "integrations/warehouses/bigquery",
+              "integrations/warehouses/snowflake",
+              "integrations/warehouses/databricks",
+              "integrations/warehouses/clickhouse",
+              "integrations/warehouses/postgresql",
+              "integrations/warehouses/mysql",
+              "integrations/warehouses/mssql",
+              "integrations/warehouses/firestore"
             ]
           },
           {
-            "group": "Endpoint examples",
+            "group": "Integrations — business tools",
             "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
+              "integrations/business-tools/posthog",
+              "integrations/business-tools/hubspot",
+              "integrations/business-tools/salesforce",
+              "integrations/business-tools/quickbooks",
+              "integrations/business-tools/zoho",
+              "integrations/business-tools/coda"
+            ]
+          },
+          {
+            "group": "Integrations — communication",
+            "pages": [
+              "integrations/communication/slack",
+              "integrations/communication/google-chat"
+            ]
+          },
+          {
+            "group": "Integrations — developer",
+            "pages": [
+              "integrations/developer/github",
+              "integrations/developer/mcp-servers",
+              "integrations/developer/tunnel-agent",
+              "integrations/developer/log-connections"
+            ]
+          },
+          {
+            "group": "Workspace & security",
+            "pages": [
+              "workspace/organizations",
+              "workspace/roles-and-permissions",
+              "workspace/sso-and-domains",
+              "workspace/audit-logs",
+              "workspace/api-tokens",
+              "workspace/billing-and-usage"
             ]
           }
         ]
@@ -71,52 +111,61 @@
     "global": {
       "anchors": [
         {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
+          "anchor": "Book a demo",
+          "href": "https://datost.cal.com/founders/30-min",
+          "icon": "calendar"
         },
         {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
+          "anchor": "Changelog",
+          "href": "https://datost.com/changelog",
+          "icon": "clock-rotate-left"
         }
       ]
     }
-  },
-  "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
   },
   "navbar": {
     "links": [
       {
         "label": "Support",
-        "href": "mailto:hi@mintlify.com"
+        "href": "https://datost.com/support"
+      },
+      {
+        "label": "Blog",
+        "href": "https://datost.com/blog"
       }
     ],
     "primary": {
       "type": "button",
-      "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
+      "label": "Book a demo",
+      "href": "https://datost.cal.com/founders/30-min"
     }
   },
   "contextual": {
-    "options": [
-     "copy",
-     "view",
-     "chatgpt",
-     "claude",
-     "perplexity",
-     "mcp",
-     "cursor",
-     "vscode"
-   ]
+    "options": ["copy", "view", "chatgpt", "claude", "perplexity", "mcp", "cursor", "vscode"]
   },
   "footer": {
     "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
-    }
+      "linkedin": "https://www.linkedin.com/company/datost/",
+      "x": "https://x.com/datostapp"
+    },
+    "links": [
+      {
+        "header": "Product",
+        "items": [
+          { "label": "Home", "href": "https://datost.com" },
+          { "label": "Features", "href": "https://datost.com/features" },
+          { "label": "Why Datost", "href": "https://datost.com/why-datost" },
+          { "label": "Blog", "href": "https://datost.com/blog" }
+        ]
+      },
+      {
+        "header": "Enterprise",
+        "items": [
+          { "label": "Security", "href": "https://datost.com/security" },
+          { "label": "Privacy", "href": "https://datost.com/privacy" },
+          { "label": "Terms", "href": "https://datost.com/terms" }
+        ]
+      }
+    ]
   }
 }

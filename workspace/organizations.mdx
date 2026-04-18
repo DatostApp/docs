@@ -1,0 +1,76 @@
+---
+title: "Organizations"
+description: "Your Datost workspace — the tenant boundary for data sources, people, and dashboards."
+icon: "building"
+---
+
+An organization is your Datost workspace. It's the tenant boundary: every data source, credential, dashboard, Slack response, scheduled report, and teammate lives inside exactly one org. When Datost answers a question in Slack or the web app, it does so in the context of one org's data and one org's people.
+
+<Note>
+  Most teams only need a single organization. Larger companies with separate business units (e.g. a holdco) sometimes run more than one, and users can belong to several.
+</Note>
+
+## Creating an organization
+
+When you sign up for Datost, we create an org for you automatically using your company name. You become its first admin.
+
+<Steps>
+  <Step title="Sign up at datost.com">
+    Sign in with Google or your work email. Datost uses your email domain to decide what happens next.
+  </Step>
+  <Step title="Land in an existing org (auto-join)">
+    If your domain is already claimed by an org that has auto-join enabled, you'll be dropped straight into it as a member.
+  </Step>
+  <Step title="Or create a new one">
+    If no org claims your domain, Datost creates a fresh org named after your company and makes you admin.
+  </Step>
+</Steps>
+
+## Inviting members
+
+Admins invite teammates by email from **Settings → Members**. Invitees get an email, set a password (or sign in with Google), and land directly in the org as a member.
+
+<Tip>
+  Invite by email is the most reliable path. Domain auto-join is a convenience for teams that expect many signups from the same company.
+</Tip>
+
+## Domain auto-join
+
+Each org can claim one or more email domains (like `acme.com`). When a new user signs up with a matching email address, Datost checks the domain and either:
+
+- **Auto-joins** them to the org as a member, or
+- **Routes them to request access** if auto-join is off.
+
+A domain can only belong to one org at a time. Admins manage claimed domains under **Settings → Domains**.
+
+<Warning>
+  Only claim domains your company actually owns. Shared domains like `gmail.com` or `outlook.com` are blocked — otherwise anyone with a Gmail could walk into your org.
+</Warning>
+
+## Access requests
+
+When someone signs up with a matching domain that isn't set to auto-join — or clicks a Slack response or dashboard link they don't yet have access to — Datost creates a pending access request. Admins see these in **Settings → Access requests** and can approve or reject them. Approved requests turn into a membership immediately.
+
+## Switching organizations
+
+If you belong to more than one org (for example, you consult for two companies using Datost), use the org switcher in the top-left of the web app to move between them. Slack responses, dashboards, and data sources all reload for the org you've switched into.
+
+<Note>
+  Your Slack identity is tied to the Datost org your Slack workspace was connected to. If you're in multiple orgs on the web, the Slack experience still anchors to whichever org owns that Slack workspace.
+</Note>
+
+## Org-level settings
+
+Admins configure the whole workspace from **Settings**:
+
+- **General** — name, slug, and workspace branding.
+- **Members & roles** — invite teammates, set admin vs. member, assign custom roles.
+- **Domains** — claim domains, toggle auto-join.
+- **Access requests** — review pending join requests.
+- **Data sources** — connect warehouses and databases.
+- **Billing** — plan, seats, and Stripe.
+- **BYOK** — bring your own Anthropic or OpenAI key for enterprise plans.
+
+<Tip>
+  Deleted orgs stay recoverable for 30 days. If you remove an org by accident, contact support before the recovery window closes and we'll restore it.
+</Tip>

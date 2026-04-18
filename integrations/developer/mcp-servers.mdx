@@ -1,0 +1,74 @@
+---
+title: MCP Servers
+description: Extend Datost with external Model Context Protocol servers to give the AI analyst new tools it can call from Slack.
+---
+
+Connect any MCP-compatible server to Datost and its tools become callable by the AI analyst inside Slack, alongside your warehouse and business-tool integrations.
+
+## What is MCP?
+
+The [Model Context Protocol](https://modelcontextprotocol.io) is an open standard for exposing tools, resources, and prompts to AI models over a uniform interface. Any HTTP MCP server — vendor-hosted or self-built — can be plugged into Datost without custom integration work.
+
+## What it unlocks
+
+Adding an external MCP server mounts its tools into Datost's agent loop. When a question benefits from those tools, the model picks them the same way it picks SQL, PostHog, or HubSpot actions.
+
+- Reach internal systems (ticketing, CRMs, observability) that Datost does not natively support.
+- Wrap proprietary APIs as tools your team can invoke from Slack by mentioning `@Datost`.
+- Use any vendor that ships a hosted MCP endpoint — Linear, Sentry, Notion, and others.
+
+## Connect an MCP server
+
+<Steps>
+  <Step title="Open MCP Servers">
+    In the Datost web app, go to **Settings → MCP Servers** and click **Add server**.
+  </Step>
+  <Step title="Configure the endpoint">
+    Give it a name, pick the **transport** (`http` streamable is recommended; `sse` is supported), and paste the HTTPS URL. HTTP is blocked in production; private and loopback hosts are rejected by the server-side URL validator.
+  </Step>
+  <Step title="Add authentication">
+    Choose either **Headers** (static key/value pairs, typically an `Authorization: Bearer ...` header) or **OAuth 2.1**. OAuth auto-discovers the authorization, token, and dynamic-client-registration endpoints, then walks you through a standard consent flow. Secrets are encrypted at rest.
+  </Step>
+  <Step title="Test and list tools">
+    Hit **Test connection** to run an `initialize` handshake, then **List tools** to fetch the server's advertised tools. Toggle individual tools off to hide them from the agent.
+  </Step>
+</Steps>
+
+## Scope to a Slack workspace
+
+MCP servers are defined at the org level but mounted per Slack connection, so a finance workspace and an engineering workspace can see different tool sets.
+
+<Steps>
+  <Step title="Open a Slack connection">
+    From **Settings → Slack**, pick the workspace you want to configure.
+  </Step>
+  <Step title="Assign servers">
+    Under **MCP Servers**, check the servers that should be mounted for that workspace. Up to 25 servers can be assigned per connection.
+  </Step>
+</Steps>
+
+<Note>
+  A server must be **enabled** at the org level and **assigned** to the connection for its tools to appear in that Slack workspace.
+</Note>
+
+## Security considerations
+
+<Warning>
+  MCP servers run arbitrary tools that the agent can invoke on your behalf. Treat them with the same care as any outbound integration: only connect servers you operate or fully trust, and review the advertised tool list before enabling.
+</Warning>
+
+- Every create/update/test/delete action is written to your audit log.
+- URLs are validated against an optional `EXTERNAL_MCP_ALLOWED_HOSTS` allowlist; private IP ranges, `localhost`, and `.internal`/`.local` hosts are always blocked.
+- Headers and OAuth tokens are encrypted with per-record keys.
+- Disable individual tools from a server if you want to keep the connection but narrow the blast radius.
+
+## Limitations
+
+- HTTPS-only in production; HTTP is allowed only with an explicit dev-mode env flag.
+- Tool discovery (`tools/list`) requires HTTP transport; SSE servers can be tested but their tools must be managed from the server side.
+- Maximum 25 MCP servers assigned per Slack connection and up to 200 disabled tools per server.
+- Datost mounts tools only — MCP resources and prompts are not surfaced to the agent today.
+
+<Tip>
+  Building your own MCP server? Any framework that speaks the 2025-06-18 MCP spec over streamable HTTP will work. Start with a single tool, connect it, and iterate from the Datost tool list view.
+</Tip>

@@ -1,0 +1,74 @@
+---
+title: PostHog
+description: Connect PostHog to Datost to query product analytics, session replays, feature flags, and experiments from Slack.
+---
+
+Once connected, your team can ask Datost questions about product usage, funnels, and experiments in plain English and have them answered against your live PostHog project.
+
+<Note>
+  Datost queries PostHog live on every question through the HogQL and REST APIs. It does not copy events or persons into its own store.
+</Note>
+
+## What you get
+
+- Ask questions like `@Datost how many signups did we have last week by source?` in Slack and get answers pulled from PostHog events.
+- Query events, persons, cohorts, insights, dashboards, feature flags, experiments, surveys, and session replays.
+- Run arbitrary HogQL against your project when a saved insight does not exist.
+- Inspect LLM costs, error tracking issues, and property definitions alongside the rest of your product data.
+
+## Prerequisites
+
+Before connecting, make sure you have:
+
+- A PostHog Cloud account (US or EU) or a self-hosted instance reachable over HTTPS.
+- Admin access to at least one PostHog project you want Datost to read.
+- The ability to complete an OAuth flow on behalf of your org.
+
+<Tip>
+  Datost requests the `read` scope only. It cannot create, modify, or delete events, insights, feature flags, or any other PostHog resource on your behalf.
+</Tip>
+
+## Connect PostHog
+
+<Steps>
+  <Step title="Open the admin panel">
+    In the Datost web app, go to **Data Sources** and click **Add data source**.
+  </Step>
+  <Step title="Pick PostHog">
+    Select **PostHog** from the list of business tools. Enter your PostHog API host if you are on EU Cloud or self-hosted, otherwise leave the default (`https://us.posthog.com`).
+  </Step>
+  <Step title="Sign in with PostHog">
+    Click **Connect with PostHog**. You will be redirected to PostHog to authorize Datost with the `read` scope. After you approve, PostHog redirects back to Datost and the access and refresh tokens are stored encrypted against your connection.
+  </Step>
+  <Step title="Project auto-discovery">
+    On successful OAuth, Datost calls `GET /api/projects/` and automatically sets the first project on the connection. If you have multiple projects, you can change the project ID from the connection settings afterwards.
+  </Step>
+  <Step title="Test and save">
+    Datost runs a test query against the selected project to confirm credentials work, then saves the connection. Your team can start asking questions immediately.
+  </Step>
+</Steps>
+
+<Note>
+  Prefer not to use OAuth? Datost also accepts a PostHog personal API key on the same connection. OAuth is tried first and falls back to the API key if no token is present.
+</Note>
+
+## What Datost can query
+
+Datost exposes the following PostHog surfaces to the agent:
+
+- **Events** — query by event name, time range, distinct ID, and properties using HogQL.
+- **Persons and cohorts** — look up users by distinct ID or email, and read cohort membership.
+- **Insights and dashboards** — list and read saved insights, including trends, funnels, and retention.
+- **Feature flags and experiments** — list flags and experiments, and compute experiment results from exposure queries.
+- **Surveys** — list surveys and fetch response stats.
+- **Session replays** — search replays by person or time range and render them inline in Slack.
+- **Error tracking and LLM costs** — list issues, read details, and roll up LLM spend over a given window.
+- **Schema discovery** — list event and property definitions so Datost knows what it can ask about.
+
+## Limitations
+
+- Datost has **read-only** access. It cannot capture events, toggle feature flags, or edit insights.
+- OAuth tokens are refreshed automatically one minute before expiry. If a refresh fails, the connection is marked unhealthy and you will need to reconnect.
+- Self-hosted PostHog must be reachable over HTTPS from Datost's backend. Private IPs, IPv6 literals, and cloud metadata endpoints are rejected.
+- Timestamps in HogQL queries are converted to `YYYY-MM-DD HH:MM:SS` format since ClickHouse does not accept ISO-8601 with `T` and `Z`.
+- A connection is scoped to one PostHog project. Add a separate Datost connection for each project you want to query.

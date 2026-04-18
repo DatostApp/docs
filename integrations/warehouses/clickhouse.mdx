@@ -1,0 +1,71 @@
+---
+title: "ClickHouse"
+description: "Connect Datost to ClickHouse for event analytics and OLAP queries in Slack."
+---
+
+Datost connects to ClickHouse so your team can ask event, product, and OLAP questions in Slack and get answers backed by real columnar data. It's a good fit for high-volume event streams, product analytics tables, and ClickHouse Cloud clusters.
+
+## Prerequisites
+
+Before connecting, gather the following from your ClickHouse cluster:
+
+- **Host** — e.g. `your-cluster.clickhouse.cloud` or an IP address
+- **HTTP port** — `8123` for HTTP, `8443` for HTTPS (ClickHouse Cloud defaults to HTTPS on `8443`)
+- **Protocol** — HTTP or HTTPS
+- **Username** — defaults to `default`
+- **Password**
+- **Database** (optional) — leave empty to expose all non-system databases
+
+<Note>
+  Datost uses the official `@clickhouse/client` package over the HTTP interface. The native TCP protocol is not supported.
+</Note>
+
+## Connect in the admin panel
+
+<Steps>
+  <Step title="Open Data Sources">
+    In the Datost web app, go to **Settings → Data Sources** and click **Add data source**.
+  </Step>
+  <Step title="Choose ClickHouse">
+    Select **ClickHouse** from the provider grid.
+  </Step>
+  <Step title="Paste a connection URL or fill fields manually">
+    Paste a ClickHouse Cloud `curl` command or connection URL to auto-fill host, port, protocol, username, and password — or enter them manually. Supported shapes include `clickhouse://user:pass@host:port/db`, bare `https://host.clickhouse.cloud:8443`, and the `curl --user 'user:pass' https://host:port` snippet from the ClickHouse Cloud connect dialog.
+  </Step>
+  <Step title="Whitelist the Datost egress IP">
+    If your cluster restricts traffic, add the egress IP shown in the modal to your ClickHouse IP allowlist.
+  </Step>
+  <Step title="Test and save">
+    Click **Test connection**. Datost runs `SELECT version()` to confirm reachability and returns the server version. Save to finish.
+  </Step>
+</Steps>
+
+## Permissions required
+
+The connecting user needs:
+
+- `SELECT` on the databases and tables you want Datost to query.
+- `SELECT` on `system.tables` and `system.columns` for schema introspection (used for table listing and column metadata).
+
+Read-only users work well. Datost does not issue writes during normal operation.
+
+<Note>
+  If you provide a specific database, Datost scopes schema discovery to that database. Leaving it blank exposes every database except `system`, `INFORMATION_SCHEMA`, and `information_schema`.
+</Note>
+
+## Limitations
+
+<Warning>
+  Large result sets are capped. Queries run with `max_result_rows` (default `1000`) and `result_overflow_mode = 'break'`, so ClickHouse stops streaming once the cap is hit and the response is marked as truncated. Schema-listing queries use a higher internal cap.
+</Warning>
+
+- **HTTP only.** The native TCP protocol isn't supported — use the HTTP/HTTPS interface (ports `8123`/`8443`).
+- **Client caching.** Datost caches up to 50 ClickHouse clients per process with a 30-minute idle TTL; connections refresh automatically when credentials change.
+- **Statement termination.** Trailing semicolons are stripped before the query is sent.
+- **Views vs. tables.** Engines containing `View` are surfaced as views; everything else is treated as a table.
+
+## Troubleshooting
+
+- **Connection test fails with a network error** — verify the port matches your protocol (`8123` for HTTP, `8443` for HTTPS) and that the Datost egress IP is whitelisted.
+- **Authentication error** — confirm the username (ClickHouse Cloud defaults to `default`) and that the password has no leading/trailing whitespace from the paste.
+- **Missing tables** — check that the user has `SELECT` on `system.tables` and `system.columns`, and that you didn't scope the connection to a database that doesn't contain them.

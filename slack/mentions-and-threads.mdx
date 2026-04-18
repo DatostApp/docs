@@ -1,0 +1,84 @@
+---
+title: "Mentions & Threads"
+description: "How to talk to Datost in Slack — @mentions, DMs, threads, the Assistant sidebar, and reactions."
+---
+
+Datost lives where your team already works. The primary way to interact is to `@Datost` in a channel, continue the conversation in a thread, or DM the app directly. Every question opens a thread, and Datost keeps the context of that thread in mind as you follow up.
+
+## Where you can talk to Datost
+
+<Steps>
+  <Step title="Public or private channels">
+    Type `@Datost` followed by your question. Datost replies in a thread under your message so the channel stays tidy.
+
+    ```
+    @Datost what was our MRR last week compared to the week before?
+    ```
+  </Step>
+  <Step title="Inside a thread">
+    Mention `@Datost` in any thread and it will read the thread as context before answering. Short follow-ups like `and by plan?` work because Datost re-uses the surrounding discussion.
+  </Step>
+  <Step title="Direct message">
+    Open a DM with the Datost app and send a message — no `@mention` needed. DMs and the native **Slack AI Assistant sidebar** both route to the same brain.
+  </Step>
+  <Step title="Slack Assistant sidebar">
+    When you open Datost from Slack's built-in AI assistant panel, we pre-populate suggested prompts based on the channel you came from: *Summarize context*, *Key decisions*, *Open questions*, and *Draft reply*.
+  </Step>
+</Steps>
+
+<Tip>
+  In a thread you can drop forwarded messages from other channels into your `@Datost` question. Datost will fetch the forwarded thread and reason over it alongside your prompt.
+</Tip>
+
+## Follow-ups keep context
+
+Every reply within the same Slack thread is treated as a continuation. Ask the broad question first, then narrow down:
+
+```
+@Datost top 10 accounts by revenue this quarter
+@Datost now just the ones on the Enterprise plan
+@Datost export that as a CSV
+```
+
+Very short follow-ups (under 10 characters) are interpreted as a request to act on the existing thread context, so `@Datost why?` works as expected.
+
+## Reactions Datost listens for
+
+<Steps>
+  <Step title="❌ to cancel">
+    React with `:x:`, `:heavy_multiplication_x:`, or `:negative_squared_cross_mark:` on a running Datost response to stop it. Datost aborts the work, edits the message to `Query cancelled`, and adds a `:white_check_mark:` confirmation.
+  </Step>
+  <Step title=":mag: to investigate">
+    React with `:mag:` on *any* message in Slack — even one not addressed to Datost — and Datost will treat that message as a new question, pulling in the surrounding thread as context. Great for "wait, what does this mean?" moments.
+  </Step>
+</Steps>
+
+## Attachments
+
+Datost reads what you share alongside your mention:
+
+- **Files** (CSVs, images, screenshots, PDFs) attached to the mention are passed through for review.
+- **Forwarded messages** from other channels are fetched, including replies in the source thread.
+- **Native Slack tables** embedded in the message are parsed as structured data.
+
+<Note>
+  Datost shows a "Reviewing the attachment" status in the Assistant sidebar so you know it picked up your file.
+</Note>
+
+## Rate limits
+
+Each workspace ships with per-user defaults of **20 queries/hour** and **100 queries/day**. Workspace admins can tune these in the Datost admin settings.
+
+<Warning>
+  When you hit the limit, Datost replies with `You've reached the query limit. Please try again in N minutes.` Cancelled and failed queries still count.
+</Warning>
+
+## When things go wrong
+
+- **No response at all** — Datost only answers in channels it has been invited to, and only if your workspace admin hasn't blocklisted the channel. Invite the bot with `/invite @Datost`.
+- **"Coming soon" reply** — your organization isn't fully activated yet. Reach out to your Datost contact.
+- **Trial ended** — an admin needs to re-enable the workspace from the Datost web app.
+
+<Tip>
+  Prefer the web app for long reports or when you want to inspect SQL and raw rows. Every Slack answer has a "View full response" link that opens the same query in your browser.
+</Tip>

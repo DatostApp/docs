@@ -1,0 +1,84 @@
+---
+title: "Dashboards"
+description: "Pinned, share-ready views of your team's key numbers and charts."
+icon: "chart-line"
+---
+
+Dashboards turn one-off answers into durable, share-ready views. Pin the metrics your team keeps asking about — revenue, signups, active users, pipeline — so everyone sees the same picture the next time someone asks "how are we doing?"
+
+<Note>
+  Dashboards live in the Datost web app and are scoped to your organization. Anyone in the org with access can view and edit them.
+</Note>
+
+## What dashboards are for
+
+Slack threads are great for answering a question once. Dashboards are for answering it forever. Use them to:
+
+<CardGroup cols={2}>
+  <Card title="Team KPIs" icon="gauge">
+    One big-number-per-widget view of the metrics leadership tracks each week.
+  </Card>
+  <Card title="Exec reviews" icon="presentation-screen">
+    A stable, sharable URL you can open in a meeting instead of re-running SQL.
+  </Card>
+  <Card title="Function health" icon="heart-pulse">
+    Growth, sales, ops, or support boards that mix trends, tables, and context.
+  </Card>
+  <Card title="Narrative reports" icon="book-open">
+    Mix charts with text widgets to explain the "why" next to the numbers.
+  </Card>
+</CardGroup>
+
+## Creating a dashboard
+
+<Steps>
+  <Step title="Open Dashboards">
+    In the web app sidebar, go to **Dashboards**. You'll see every dashboard in your org.
+  </Step>
+  <Step title="Create a new board">
+    Click **New dashboard**, give it a name, an optional description, and tags for filtering later.
+  </Step>
+  <Step title="Add your first widget">
+    Use the widget picker on the empty dashboard, or pipe a result in from Slack (see below).
+  </Step>
+</Steps>
+
+## Adding widgets
+
+There are two ways widgets land on a dashboard.
+
+### From a chat result
+
+Any chart or table Datost produces in Slack or the web chat can be pinned with a single click. Datost carries over the SQL, the data source, the chart type, and the axis mapping, so the widget refreshes against live data — not a static snapshot.
+
+### Authored directly
+
+Open the widget configuration modal to write SQL, pick a data source, choose a chart type, and set axis keys yourself.
+
+<Tip>
+  Use `$start_time`, `$end_time`, and `$interval` placeholders in your SQL. Datost substitutes them based on the dashboard's selected time range, so one widget works across 7d, 30d, and 90d views.
+</Tip>
+
+### Widget types
+
+Datost supports the following widget types: **bar**, **horizontal bar**, **stacked bar**, **line**, **area**, **scatter**, **donut**, **radar**, **treemap**, **heatmap**, **funnel**, **composed** (bar + line on dual axes), **KPI** (single big number with optional previous-period comparison), and **text** (Markdown block for descriptions and section headers).
+
+## Layout, resize, and rearrange
+
+Dashboards use a row-based auto-layout. Each widget has a **row**, an **order within the row**, and a **size** hint — `small`, `medium`, `large`, or `full`. Drag widgets to reorder them, or open a widget's menu to resize. The layout is responsive, so a `full`-width KPI on desktop stacks cleanly on a laptop.
+
+## Sharing and access
+
+<Note>
+  Dashboards are **org-scoped**. Every authenticated member of your organization can view and edit any dashboard in the org — there is no per-board role gate today. Users from another org see an access-required screen and can request access.
+</Note>
+
+Share a dashboard by copying its URL. For long-lived reporting, you can also export a dashboard to **Omni** for use in your BI stack.
+
+## Refresh and caching
+
+Widget results are cached in Redis for fast loads, with the latest successful query also persisted to the database as a fallback. Hit **Refresh** on a single widget to re-run its SQL, or **Refresh all** on the dashboard header to re-execute every widget at once. KPI widgets with time variables also run a previous-period query automatically so you can see the delta.
+
+<Tip>
+  If a widget shows a red error state, open it to see the SQL error returned by your warehouse — usually a schema change or a permissions issue on the data source.
+</Tip>

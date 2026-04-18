@@ -1,0 +1,77 @@
+---
+title: Scheduled Reports
+description: Run recurring AI research jobs on a cadence and deliver the results straight into Slack — DMs, channels, or group chats.
+---
+
+Scheduled Reports turn any Datost research prompt into a recurring job. Pick a cadence, pick a delivery target, and Datost will run the research on schedule and post the answer into Slack — no one has to remember to ask.
+
+A scheduled report is just a saved prompt plus a schedule. When it fires, Datost runs the same AI research agent that powers `@Datost` mentions, streams the report through your connected data sources, and posts the formatted result to the delivery target you chose.
+
+## Create a schedule
+
+You can create a scheduled report from either Slack or the Datost web app. Both produce the same thing — a row in `scheduledResearchJobs` that the worker picks up.
+
+### From Slack
+
+<Steps>
+  <Step title="Run the slash command">
+    In any channel or DM where Datost is installed, type `/datost schedule create` (or just `/datost schedule`). A modal opens with the full schedule builder.
+  </Step>
+  <Step title="Fill out the modal">
+    Give the report a name, paste your research prompt, pick a frequency, time, and timezone, and choose where results should be delivered.
+  </Step>
+  <Step title="Submit">
+    Datost creates the schedule in the background and posts a confirmation message to the delivery target with a summary and the commands you'll use to manage it.
+  </Step>
+</Steps>
+
+<Tip>
+  Running `/datost schedule` from inside a channel defaults the delivery target to that channel. From a DM, it defaults to DM. You can override either way before submitting.
+</Tip>
+
+### From the web app
+
+Open **Schedules** in the Datost web app and click **New Schedule**. The form mirrors the Slack modal — name, research prompt, frequency, time, timezone, and delivery target — and submits to the same backend.
+
+## Cadence and timezone
+
+Pick one of the built-in frequencies: **Daily**, **Weekdays (Mon–Fri)**, **Weekly on Monday**, **Weekly on Friday**, **Every other Monday**, or **1st of every month**. Combine it with a time-of-day and a timezone, and Datost compiles the pair into a cron expression and computes the next run.
+
+<Note>
+  Timezones are IANA zones (e.g. `America/New_York`, `Europe/London`, `Asia/Tokyo`). The worker respects DST — a 9:00 AM ET schedule stays at 9:00 AM local time even when the clocks shift.
+</Note>
+
+## Delivery targets
+
+A scheduled report can post to any Slack surface the Datost bot can reach:
+
+- **DM** — Datost sends the result to the user who created the schedule.
+- **Channel** — Any public or private channel Datost has been invited to.
+- **Group chat** — A multi-person IM (MPIM). Useful for small stakeholder groups without creating a channel.
+
+## Manage schedules
+
+Every schedule can be paused, resumed, edited, or deleted. Pausing leaves the row intact but skips future runs until you resume it.
+
+From Slack:
+
+- `/datost schedule list` — List your active and paused schedules
+- `/datost schedule pause <id>` — Pause a schedule
+- `/datost schedule resume <id>` — Resume a paused schedule
+- `/datost schedule delete <id>` — Delete a schedule
+
+From the web app, click any schedule in the **Schedules** list to open its detail view, then use the pause, edit, or delete controls in the header. Edits go live immediately — the next run is recomputed from the new cadence.
+
+<Tip>
+  See the [Slack slash commands](/slack/slash-commands) page for the full command reference, including subtle differences between `/datost schedule` and `/datost help`.
+</Tip>
+
+## Run history and re-runs
+
+Every scheduled run is recorded in `scheduledResearchJobRuns` with its status (`success` or `failed`), duration, and — on failure — the error message. The detail view in the web app surfaces the last run time, last run status, total run count, and any error from the most recent failure.
+
+<Note>
+  If a run fails (for example, a warehouse timeout or a transient LLM error), the schedule stays active and retries on its next cadence tick. We don't auto-retry failed runs mid-cycle to avoid duplicate posts.
+</Note>
+
+To re-run a schedule on demand, open it in the web app and trigger a manual run, or just edit the prompt — saving the schedule does not fire a run, but you can pair it with a one-off `@Datost` mention in Slack to get the same research immediately.
