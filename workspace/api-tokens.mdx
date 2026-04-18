@@ -1,0 +1,57 @@
+---
+title: "API tokens"
+description: "Long-lived tokens for programmatic access to the Datost API from the desktop app and other clients."
+icon: "key"
+---
+
+API tokens (internally: app tokens) are long-lived bearer credentials that authenticate a human user to the Datost backend from outside the web app — today primarily the Datost Desktop App. A token is tied to one user and one organization, inherits that user's role and permissions, and is valid for 90 days.
+
+<Note>
+  Datost's public REST API is still small. Today, tokens are issued to and consumed by the Datost Desktop App via a device-authorization flow. Every route behind the standard auth guard accepts either a Clerk session JWT or an app token in the `Authorization` header — as we expose more endpoints publicly, the same token will cover them.
+</Note>
+
+## How tokens work
+
+A Datost API token is a 64-character hex string. When you send it as `Authorization: Bearer <token>`, the server verifies it against the `app_tokens` table and attaches your user, org, and role to the request — exactly as a browser session would. Only the SHA-256 hash is stored in the database, so even a database breach cannot leak usable tokens.
+
+```bash
+curl https://api.datost.com/me \
+  -H "Authorization: Bearer <your-api-token>"
+```
+
+## Creating a token
+
+Tokens are currently issued through the desktop app's sign-in flow, not through a manual "create token" button. The first time you sign in on desktop, Datost mints a token for that device.
+
+<Steps>
+  <Step title="Open the Datost Desktop App">
+    Launch the app and choose **Sign in with Datost**.
+  </Step>
+  <Step title="Approve the device in your browser">
+    The app opens `datost.com/auth/device` with a short user code. Confirm the code and pick the org you want the token scoped to.
+  </Step>
+  <Step title="Token is issued automatically">
+    The desktop app receives a 90-day token, stores it in your OS keychain, and uses it for every request.
+  </Step>
+</Steps>
+
+## Scopes and permissions
+
+Tokens do not carry their own scopes. A token acts as the user who created it, under the org it was issued for, and inherits that user's current role — including any custom role. Revoking someone's workspace membership or changing their role immediately affects their tokens.
+
+## Rotation and revocation
+
+Tokens expire 90 days after issue. Signing in again from the desktop app mints a fresh one. You can also invalidate tokens on demand:
+
+- **Single device:** Sign out in the desktop app to revoke that token.
+- **All devices:** An admin can revoke every token for a user (for example, after offboarding) by removing the user from the org, which cascades to their tokens.
+
+## Security
+
+<Warning>
+  Treat an API token like a password. Anyone who holds it can act as you inside Datost for up to 90 days — including reading queries, running SQL against connected data sources, and posting in Slack.
+</Warning>
+
+- Never commit tokens to git, paste them into shared docs, or send them over Slack.
+- Store tokens in a secret manager or your OS keychain — which is where the desktop app keeps them by default.
+- If a token leaks, revoke it immediately by signing out the affected device and rotating credentials on any data sources you suspect were touched.

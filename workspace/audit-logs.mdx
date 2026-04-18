@@ -1,0 +1,76 @@
+---
+title: "Audit Logs"
+description: "An immutable record of security-relevant actions in your Datost workspace — who did what, when, and from where."
+---
+
+<Note>
+  Audit logs are retained for **SOC 2 compliance** and are visible to **workspace owners and admins only**. Members and guests cannot view or export them.
+</Note>
+
+Datost captures an append-only audit trail for every security-sensitive action in your workspace. Each entry records the actor (user ID + email), the action, the affected resource, originating IP address, user agent, and a timestamp — plus any action-specific metadata (e.g. which fields changed on a secret update).
+
+## What gets audited
+
+Audit events are grouped into categories that mirror the sensitive surfaces of the product.
+
+<AccordionGroup>
+  <Accordion title="Authentication">
+    - `auth.login` — successful sign-in
+    - `auth.logout` — session ended
+    - `auth.failed` — failed sign-in attempt
+  </Accordion>
+  <Accordion title="Members & roles">
+    - `member.invited`, `member.joined`, `member.auto_joined` (domain auto-join)
+    - `member.access_requested`
+    - `member.removed`
+    - `member.role_changed` — any promotion or demotion between owner / admin / member
+  </Accordion>
+  <Accordion title="Organization & domains">
+    - `org.created`, `org.updated`, `org.deleted`
+    - `org.domain_added`, `org.domain_updated`, `org.domain_removed`
+    - `org.domain_auto_seeded`, `org.domain_seed_skipped`
+  </Accordion>
+  <Accordion title="Secrets & data source config">
+    - `secret.created`, `secret.read`, `secret.updated`, `secret.deleted`, `secret.listed`
+    - Warehouse credentials, Slack tokens, and OAuth refresh tokens all flow through the secret store, so every rotation and read is logged.
+  </Accordion>
+  <Accordion title="Licenses & usage">
+    - `license.created`, `license.activated`, `license.deactivated`, `license.revoked`
+    - `usage.limit_warning`, `usage.limit_reached`
+  </Accordion>
+</AccordionGroup>
+
+Slack install and uninstall events flow through the `org` and `secret` categories (the Slack bot token is managed as a secret).
+
+## Viewing the audit log
+
+<Steps>
+  <Step title="Open Workspace settings">
+    In the Datost web app, click your workspace name in the sidebar and choose **Settings**.
+  </Step>
+  <Step title="Go to Security → Audit Log">
+    You'll see the most recent 100 events by default, newest first.
+  </Step>
+  <Step title="Filter">
+    Narrow the list by **date range**, **action type** (e.g. `secret.*`, `member.role_changed`), or **actor** (user email). Click any row to expand the full metadata payload.
+  </Step>
+</Steps>
+
+## Retention
+
+Audit log entries are retained for the lifetime of your workspace and are **never deleted**, even if the organization or user is removed — the `orgId` and `userId` are stored as plain text references rather than foreign keys, so the historical record survives teardown. Customers on the Enterprise plan can request extended archival to cold storage.
+
+## Export
+
+Admins can export filtered audit log results as **CSV** or **JSON** from the Audit Log page. For continuous export into your SIEM (Splunk, Datadog, Panther), reach out to your Datost contact about the Enterprise **audit streaming** add-on, which delivers events via webhook in near real time.
+
+## Who can access audit logs
+
+| Role    | View | Filter | Export |
+| ------- | ---- | ------ | ------ |
+| Owner   | Yes  | Yes    | Yes    |
+| Admin   | Yes  | Yes    | Yes    |
+| Member  | No   | No     | No     |
+| Guest   | No   | No     | No     |
+
+If you need a compliance report (SOC 2, vendor security review) covering a specific window, email [security@datost.com](mailto:security@datost.com).

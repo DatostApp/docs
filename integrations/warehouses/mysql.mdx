@@ -1,0 +1,99 @@
+---
+title: "MySQL & MariaDB"
+description: "Connect Datost to a MySQL or MariaDB database for Slack-native analytics."
+---
+
+Datost connects directly to MySQL 5.7+ and MariaDB 10.3+ so your team can ask questions in Slack and get answers grounded in live data.
+
+## What you'll need
+
+- Hostname, port (default `3306`), and database name
+- A username and password for a **read-only** user
+- Whether the instance is **public** (reachable from the internet) or **private** (VPC / on-prem)
+
+<Note>
+  MariaDB is wire-compatible with MySQL. Select **MySQL** in the connector picker — the same driver works for both. Datost's query planner uses the MySQL `EXPLAIN` dialect, which MariaDB supports.
+</Note>
+
+## Create a read-only user
+
+Datost is built around safety. We strongly recommend a dedicated analyst user with `SELECT`-only access to the schemas you want exposed.
+
+<CodeGroup>
+
+```sql MySQL 8+
+CREATE USER 'datost'@'%' IDENTIFIED BY 'strong-password-here';
+GRANT SELECT ON your_database.* TO 'datost'@'%';
+GRANT SHOW VIEW ON your_database.* TO 'datost'@'%';
+FLUSH PRIVILEGES;
+```
+
+```sql MySQL 5.7
+GRANT SELECT, SHOW VIEW ON your_database.*
+  TO 'datost'@'%' IDENTIFIED BY 'strong-password-here';
+FLUSH PRIVILEGES;
+```
+
+```sql MariaDB
+CREATE USER 'datost'@'%' IDENTIFIED BY 'strong-password-here';
+GRANT SELECT, SHOW VIEW ON your_database.* TO 'datost'@'%';
+FLUSH PRIVILEGES;
+```
+
+</CodeGroup>
+
+<Warning>
+  Never give Datost a user with `INSERT`, `UPDATE`, `DELETE`, or DDL privileges. Datost will refuse to run mutations, but least-privilege is your last line of defense.
+</Warning>
+
+## Connect in the admin panel
+
+<Steps>
+  <Step title="Open Data Sources">
+    In the Datost web app, go to **Settings → Data Sources** and click **Add data source**.
+  </Step>
+  <Step title="Pick MySQL">
+    Select **MySQL** from the connector grid. Use the same option for MariaDB.
+  </Step>
+  <Step title="Enter credentials">
+    Fill in host, port (`3306` by default), database, username, and password. You can also paste a `mysql://user:pass@host:3306/db` connection string and we'll parse it.
+  </Step>
+  <Step title="Configure SSL">
+    Toggle **Require SSL** if your server enforces TLS. Managed providers (PlanetScale, Aiven, AWS RDS with SSL, DigitalOcean) require this.
+  </Step>
+  <Step title="Test and save">
+    Click **Test connection**. Datost runs a version check (`SELECT VERSION()`) and verifies it can list tables. On success, save — schema introspection starts immediately.
+  </Step>
+</Steps>
+
+## Public vs. private instances
+
+### Public instances
+
+If your database accepts connections from the public internet, allowlist Datost's outbound IPs (contact support for the current list) and connect directly.
+
+### Private instances
+
+For databases inside a VPC, behind a bastion, or on-prem, install the **Tunnel Agent** — a small container that runs in your network and brokers encrypted connections outbound to Datost. No inbound firewall rules required.
+
+<Steps>
+  <Step title="Install the Tunnel Agent">
+    Follow the [Tunnel Agent setup guide](/integrations/developer/tunnel-agent) to deploy the agent in your VPC.
+  </Step>
+  <Step title="Select the tunnel">
+    When adding the MySQL source, choose **Connect via Tunnel Agent** and pick the agent you just installed. Host/port are resolved from inside your network.
+  </Step>
+</Steps>
+
+## Supported features
+
+- Schema introspection across all accessible databases
+- Query planning with `EXPLAIN` and `EXPLAIN ANALYZE` (MySQL 8.0.18+)
+- Read-only SQL execution with automatic `LIMIT` guards
+- Table-level exclusions to hide sensitive data from the AI
+
+## Troubleshooting
+
+- **Access denied for user**: verify the user host portion (`'datost'@'%'`) allows connections from Datost's IPs or the Tunnel Agent.
+- **SSL connection error**: switch the SSL toggle to match your server's `require_secure_transport` setting.
+- **Unknown database**: the user must have `SELECT` on the specific schema — grants on `*.*` are fine too.

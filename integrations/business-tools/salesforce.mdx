@@ -1,0 +1,71 @@
+---
+title: Salesforce
+description: Connect your Salesforce org to Datost to ask questions about CRM data from Slack or the web app.
+---
+
+Once connected, your team can ask Datost questions like `@Datost which opportunities closed last week by AE?` or `@Datost show me open leads by source` and have the answers pulled live from Salesforce.
+
+<Note>
+  Datost queries Salesforce live on every question using SOQL. No Salesforce records are copied or cached into Datost, only object and field metadata are held briefly to speed up schema lookups.
+</Note>
+
+## What you get
+
+- Natural language questions answered against **leads, accounts, contacts, opportunities, cases, tasks, and campaigns**.
+- Full support for **custom objects** (any `__c` object) and **custom fields**, picked up automatically from your org's schema.
+- A schema explorer in the Datost admin panel that surfaces every queryable object, its fields, types, and reference relationships.
+
+## Prerequisites
+
+Before connecting, make sure you have:
+
+- A Salesforce user with the **API Enabled** permission in the target org.
+- Read access on every object and field you want Datost to query. Datost inherits field-level security from the connecting user.
+- Your **My Domain** URL (for example `your-org.my.salesforce.com`). Both production and sandbox orgs are supported — use the My Domain for the exact org you want connected.
+
+## OAuth and scopes
+
+Datost uses a shared Salesforce Connected App and never asks for your password or a session token. During connection, Salesforce issues a refresh token that Datost encrypts and stores server-side per organization.
+
+Datost requests two OAuth scopes:
+
+- `api` — read Salesforce objects and run SOQL queries.
+- `refresh_token` — keep the connection alive without re-prompting the user.
+
+## Connect Salesforce
+
+<Steps>
+  <Step title="Open the admin panel">
+    In the Datost web app, go to **Data Sources** and click **Add data source**.
+  </Step>
+  <Step title="Pick Salesforce">
+    Select **Salesforce** from the list of knowledge sources.
+  </Step>
+  <Step title="Enter your Salesforce domain">
+    Paste your **My Domain** URL (for example `acme.my.salesforce.com`, or `acme--sandbox.sandbox.my.salesforce.com` for a sandbox org). Datost normalizes `lightning.force.com` URLs automatically.
+  </Step>
+  <Step title="Authenticate with Salesforce">
+    Click **Connect Salesforce**. A popup opens Salesforce's login page for that domain. Sign in and approve the `api` and `refresh_token` scopes.
+  </Step>
+  <Step title="Name and save">
+    The popup closes once Salesforce returns the refresh token. Give the connection a name and description, then save.
+  </Step>
+</Steps>
+
+<Tip>
+  To connect a sandbox, just log in through its My Domain — Datost uses the same OAuth flow for production and sandbox orgs, and stores each as a separate data source.
+</Tip>
+
+## Exploring your schema
+
+Open the Salesforce connection in the admin panel to browse every object in the org. Each entry shows whether it's **queryable**, **custom**, and **has records**, plus a field-level view with types, filterability, and reference relationships. A **starter query** button generates a working SOQL snippet for any object so you can preview records before exposing them to Datost.
+
+## Permissions and limits
+
+<Warning>
+  Datost inherits the connecting user's profile and permission sets, including **field-level security** and **sharing rules**. If the user can't see a field in Salesforce, Datost can't either — and if the user has broad access, anyone who can ask Datost a question can indirectly read that data. We recommend connecting with a dedicated integration user scoped to the objects Datost should see.
+</Warning>
+
+- SOQL queries count against your org's **Salesforce API request limits**. Datost paginates large result sets and keeps per-query row counts bounded to stay well under standard org quotas.
+- Non-queryable objects (like `AttachedContentNote`) are surfaced in the schema browser but cannot be queried.
+- Refresh tokens are rotated per Salesforce's policies; if a token is revoked from Setup, reconnect the data source from the admin panel to restore access.

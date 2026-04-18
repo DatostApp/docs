@@ -1,0 +1,59 @@
+---
+title: "QuickBooks"
+description: "Connect QuickBooks Online so Datost can answer finance questions about invoices, customers, expenses, and P&L from Slack."
+---
+
+Connecting QuickBooks lets Datost pull accounting data into Slack conversations — invoices, customers, vendors, expenses, payments, and profit-and-loss reports — so your team can ask "what did we bill Acme last quarter?" without leaving chat.
+
+## What you can ask
+
+Once QuickBooks is connected, Datost can reason over your accounting data:
+
+- **Revenue and receivables** — invoices, payments, customer balances, aging
+- **Spend** — expenses, bills, vendors, purchase history
+- **Reports** — profit & loss, balance sheet, cash flow
+- **Entities** — customers, vendors, accounts, and the chart of accounts
+
+<Note>
+  Datost only supports **QuickBooks Online**. QuickBooks Desktop uses a different API surface and is not currently supported.
+</Note>
+
+## How it connects
+
+Datost uses Intuit's OAuth 2.0 flow. You sign into your Intuit account, pick the QuickBooks **company** (realm) you want to expose, and Intuit redirects back to Datost with a short-lived authorization code. Datost exchanges that code for access and refresh tokens and stores them encrypted against your org. No API keys, no service accounts.
+
+The scope requested is `com.intuit.quickbooks.accounting` — read access to your accounting data only.
+
+## Connect QuickBooks
+
+<Steps>
+  <Step title="Open the admin panel">
+    In the Datost web app, go to **Connections** and click **Add connection**. Pick **QuickBooks** from the provider list.
+  </Step>
+  <Step title="Name the connection">
+    Give it a recognizable name (for example, "Acme Holdings — Main Co"). This is how the connection appears in Slack and the admin UI.
+  </Step>
+  <Step title="Sign in with Intuit">
+    Click **Connect QuickBooks**. A popup opens to `appcenter.intuit.com`. Sign in with the Intuit account that owns the QuickBooks company you want to connect.
+  </Step>
+  <Step title="Pick the company (realm)">
+    Intuit asks which QuickBooks company to authorize. If your Intuit login has access to multiple companies, choose the one Datost should read from. Each Datost connection maps to exactly one realm — add additional connections for additional companies.
+  </Step>
+  <Step title="Approve access">
+    Approve the read-only accounting scope. Intuit redirects back to Datost, the popup closes, and the connection shows as connected with a green status.
+  </Step>
+</Steps>
+
+## Token refresh
+
+Intuit access tokens expire after one hour. Datost automatically refreshes them in the background using the stored refresh token. Refresh tokens rotate roughly every 100 days of activity — as long as the connection is used regularly, it stays healthy.
+
+If a refresh fails (revoked access, password reset, or an expired refresh token), the connection surfaces a refresh error in the admin panel. Click **Reconnect QuickBooks** to re-run the OAuth flow — the existing connection and its history are preserved.
+
+## Limitations
+
+- **QuickBooks Online only.** Desktop, Self-Employed, and legacy editions are not supported.
+- **One realm per connection.** Multi-entity setups need one Datost connection per QuickBooks company.
+- **Read-only.** Datost never writes back to QuickBooks — no invoice creation, no journal entries.
+- **Refresh tokens expire after ~100 days of inactivity.** Long-dormant connections may need a one-click reconnect.
+- **Rate limits.** Intuit enforces per-realm API limits; very large or bursty queries may be throttled and retried.

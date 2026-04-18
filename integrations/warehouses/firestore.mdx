@@ -1,0 +1,80 @@
+---
+title: Firestore
+description: Connect your Google Cloud Firestore database to Datost and query your documents from Slack or the web app.
+---
+
+Connect Firestore to let Datost query your NoSQL document collections in plain English. Ideal for product teams whose operational data lives in Firestore instead of a SQL warehouse.
+
+<Note>
+  Datost reads Firestore live on every question using a SQL-like query layer, it does not copy or cache documents. Results stream back into Slack or the web app as soon as the query returns.
+</Note>
+
+## What you get
+
+- Ask questions like `@Datost how many users signed up this week?` and have them answered against live Firestore collections.
+- Automatic schema inference by sampling documents, including nested maps, arrays, timestamps, GeoPoints, and DocumentReferences.
+- Support for root collections, subcollection paths (`users/abc123/orders`), and collection group queries across every subcollection with the same name.
+
+## Prerequisites
+
+Before connecting, make sure you have:
+
+- A Google Cloud project with **Firestore in Native Mode** enabled. Datastore Mode is not supported.
+- The `Cloud Datastore Viewer` (`roles/datastore.viewer`) role on the project, or a custom role with `datastore.documents.get` and `datastore.documents.list`.
+- For service-account auth: permission to create a service account key in the project.
+
+<Warning>
+  If your project uses Firestore in Datastore Mode, the connection test will fail with a clear error. You'll need to create a new project with Native Mode, or connect a different one.
+</Warning>
+
+## Authentication methods
+
+<AccordionGroup>
+  <Accordion title="Sign in with Google (OAuth)">
+    Fastest path. Datost requests the `datastore` and `cloudplatformprojects.readonly` scopes and uses the signed-in user's permissions. Refresh tokens are encrypted per-organization at rest.
+  </Accordion>
+  <Accordion title="Service account key">
+    Recommended for shared org-wide access. Create a service account in GCP, grant it `roles/datastore.viewer`, generate a JSON key, and paste it when connecting.
+  </Accordion>
+</AccordionGroup>
+
+## Connect Firestore
+
+<Steps>
+  <Step title="Open the admin panel">
+    In the Datost web app, go to **Data Sources** and click **Add data source**.
+  </Step>
+  <Step title="Pick Firestore">
+    Select **Firestore** from the list of warehouse types.
+  </Step>
+  <Step title="Choose an auth method">
+    Toggle between **Sign in with Google** and **Service Account** at the top of the form.
+  </Step>
+  <Step title="Authenticate">
+    - **OAuth:** click **Sign in with Google** and approve access. Datost filters out Datastore Mode projects automatically, then lets you pick a **GCP Project ID** from the dropdown.
+    - **Service account:** paste the JSON key into the **Service Account Key** field and enter the **Project ID**.
+  </Step>
+  <Step title="Test and save">
+    Click **Test Connection**. Datost lists the root collections it can see as a sanity check. If it passes, name the connection and save.
+  </Step>
+</Steps>
+
+## How querying works
+
+Datost translates questions into a SQL-like syntax that compiles to native Firestore queries:
+
+- `SELECT * FROM users WHERE plan = 'pro' ORDER BY createdAt DESC LIMIT 100`
+- `SELECT * FROM users/abc123/orders WHERE status IN ('paid', 'shipped')`
+- `SELECT * FROM COLLECTION_GROUP(orders) WHERE total > 500`
+
+Supported operators include `==`, `!=`, `<`, `<=`, `>`, `>=`, `IN`, `NOT IN`, `ARRAY_CONTAINS`, and `ARRAY_CONTAINS_ANY`. Nested fields via dot notation (`properties.status`) work in both `WHERE` and `ORDER BY`.
+
+## Limits vs SQL warehouses
+
+<Warning>
+  Firestore is a document database, not a relational one. Datost cannot perform joins, aggregations (`GROUP BY`, `SUM`, `AVG`), or subqueries against Firestore. Ask questions that map to single-collection reads.
+</Warning>
+
+- No joins across collections. Use collection groups or denormalize at write time.
+- Rows are capped at 1,000 per query; schemas are inferred from a sample of up to 100 documents per collection so rare fields may be missed.
+- Firestore composite-index requirements still apply: queries combining multiple range filters or non-indexed `ORDER BY` fields will fail until you add the matching index in GCP.

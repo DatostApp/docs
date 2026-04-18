@@ -1,0 +1,83 @@
+---
+title: BigQuery
+description: Connect your Google BigQuery project to Datost and query it from Slack or the web app.
+---
+
+Once connected, anyone on your team can ask Datost questions in plain English and have them answered against live data in your BigQuery datasets.
+
+<Note>
+  Datost queries BigQuery live on every question, it does not copy or cache your data. Results stream back into Slack or the web app as soon as the query returns.
+</Note>
+
+## What you get
+
+- Ask questions like `@Datost what was MRR last week by plan?` in Slack and have the answer pulled straight from BigQuery.
+- Automatic table and column discovery across every dataset your credentials can see.
+- Support for views, nested `STRUCT`/`RECORD` columns, and standard SQL types.
+
+## Prerequisites
+
+Before connecting, make sure you have:
+
+- A Google Cloud project with the BigQuery API enabled.
+- `BigQuery Data Viewer` and `BigQuery Job User` roles on the datasets you want Datost to read. `BigQuery Metadata Viewer` also works if you only want schema discovery.
+- Permission to read `INFORMATION_SCHEMA` on each dataset you want available for questions.
+
+<Tip>
+  Grant access at the dataset level, not the project level, if you want to scope Datost to specific data. Datost will only see the datasets the connecting identity is granted on.
+</Tip>
+
+## Authentication methods
+
+Datost supports two ways to authenticate to BigQuery. Pick the one that fits your setup.
+
+<AccordionGroup>
+  <Accordion title="Sign in with Google (OAuth)">
+    Best for getting started quickly. Datost uses the signed-in user's permissions, so the connection can only see what that user can see.
+  </Accordion>
+  <Accordion title="Service account key">
+    Best for production and shared org-wide access. Create a service account in GCP, grant it the roles above on the datasets you want Datost to query, and upload the JSON key when connecting.
+  </Accordion>
+</AccordionGroup>
+
+## Connect BigQuery
+
+<Steps>
+  <Step title="Open the admin panel">
+    In the Datost web app, go to **Data Sources** and click **Add data source**.
+  </Step>
+  <Step title="Pick BigQuery">
+    Select **BigQuery** from the list of warehouse types.
+  </Step>
+  <Step title="Choose an auth method">
+    Toggle between **Sign in with Google** and **Service Account** at the top of the form.
+  </Step>
+  <Step title="Authenticate">
+    - **OAuth:** click **Sign in with Google**, approve the `bigquery.readonly` scope in the popup, then pick a **GCP Project ID** from the dropdown.
+    - **Service account:** paste the full JSON key into the **Service Account Key** field. Datost will extract the project ID automatically.
+  </Step>
+  <Step title="Set a default dataset (optional)">
+    Fill **Default Dataset** to let Datost resolve unqualified table names. You can leave it blank if your questions always reference `dataset.table`.
+  </Step>
+  <Step title="Test and save">
+    Click **Test Connection**. Datost lists the datasets the credentials can see as a sanity check. If it passes, name the connection and save.
+  </Step>
+</Steps>
+
+## How querying works
+
+Datost queries BigQuery **live** for every question. Nothing from your tables is copied into Datost storage.
+
+- Rows are capped at 1,000 per query to keep responses fast, and results are truncated past that limit.
+- Every BigQuery job is tagged with a `source: datost` label so you can filter them in GCP billing and audit logs.
+- Only metadata (table and column names) is cached briefly to speed up follow-up questions.
+
+## Permissions and limits
+
+<Warning>
+  Datost inherits whatever BigQuery permissions you give it. If a service account can read a sensitive dataset, anyone who can ask Datost a question in your workspace can indirectly read from it too. Scope access deliberately.
+</Warning>
+
+- BigQuery does not expose primary or foreign keys, so Datost infers relationships from column names and context.
+- Datasets without `INFORMATION_SCHEMA` read access are silently skipped during table discovery.
+- OAuth access tokens are refreshed automatically; refresh tokens are encrypted per-organization at rest.

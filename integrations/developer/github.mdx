@@ -1,0 +1,69 @@
+---
+title: "GitHub"
+description: "Give Datost code context from your repositories so it can understand your schema, transformations, and open PRs when asked."
+---
+
+Datost connects to GitHub as an organization-level GitHub App. Once installed, Datost can read the repos you select to ground its answers in your actual codebase — reading migrations to understand table shapes, dbt models to understand transformations, and docs to understand business logic. It can also open pull requests on your behalf when you ask it to.
+
+## What this unlocks
+
+- **Schema-aware answers.** When someone asks a question in Slack, Datost can cross-reference column names and relationships against your migrations and ORM models instead of guessing from warehouse metadata alone.
+- **Transformation context.** Datost reads dbt projects, SQL files, and notebooks so it understands how metrics are actually computed upstream.
+- **Auto-PR workflow.** Ask Datost in Slack to fix a failing metric, add a column to a dbt model, or update a chart config — it will branch, commit, open a PR, and monitor CI.
+
+<Note>
+  Datost never pushes directly to your default branch. All code changes go through a pull request that your team reviews.
+</Note>
+
+## Install the GitHub App
+
+<Steps>
+  <Step title="Start the install from Datost">
+    In the Datost web app, go to **Settings → Integrations → GitHub** and click **Install GitHub App**. This generates a signed state token that binds the install to your Datost org.
+  </Step>
+  <Step title="Choose the GitHub organization">
+    Pick the org or user account that owns your repos. You need to be an owner — or have an owner approve the request — to install org-wide apps.
+  </Step>
+  <Step title="Select repositories">
+    Choose **Only select repositories** and pick the ones Datost should read. Start with your dbt repo, data platform repo, and any app repos whose migrations define your warehouse tables. You can add more later from GitHub's app settings.
+  </Step>
+  <Step title="Confirm on Datost">
+    GitHub redirects back to Datost and links the installation to your org. Selected repos appear in the integration page, and Datost begins cloning them in the background.
+  </Step>
+</Steps>
+
+## What gets cloned and indexed
+
+For each selected repo, Datost stores a cloned working copy keyed to your org so the Slack agent can read files on demand. Typical signal it uses:
+
+- SQL migrations and schema files
+- dbt `models/`, `schema.yml`, and `sources.yml`
+- ORM model definitions (Prisma, SQLAlchemy, Drizzle, ActiveRecord)
+- READMEs and `docs/` folders that describe metrics or business rules
+
+Datost re-syncs repos on a schedule and on relevant webhook events so new migrations are picked up quickly.
+
+## Auto-PR capability
+
+When you ask Datost to change code — for example, "add a `churned_at` column to the customers dbt model" — it branches from your default branch, commits the change, opens a PR, and watches the check runs. If CI fails, Datost reads the workflow logs, attempts a fix, and pushes again. You review and merge as normal.
+
+## Permissions requested
+
+The Datost GitHub App requests:
+
+- **Contents: read & write** — clone repos and push to Datost-created branches
+- **Pull requests: read & write** — open, update, and comment on PRs it creates
+- **Workflows & Checks: read** — monitor CI status on Auto-PR branches
+- **Metadata: read** — list repos available to the installation
+
+Tokens are short-lived installation tokens scoped to a single repo when used for sandboxed auto-PR work.
+
+## Limitations
+
+<Warning>
+  Datost will not read or modify repositories you did not explicitly select during install. To add or remove repos, update the installation from GitHub's **Settings → Applications** page.
+</Warning>
+
+- Very large monorepos (>2 GB) may be partially indexed; contact support if you need full coverage.
+- Auto-PR runs on the default branch only. Protected-branch rules must allow the Datost App as an approved author, or PRs will open but not auto-merge.
+- Private submodules are not cloned.

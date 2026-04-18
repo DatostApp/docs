@@ -1,0 +1,89 @@
+---
+title: "PostgreSQL"
+description: "Connect a PostgreSQL database so Datost can answer questions from your data in Slack."
+---
+
+Datost connects directly to PostgreSQL as a read-only query client. Once connected, the Slack agent introspects your schema, writes SQL, and returns answers in-thread.
+
+## Before you connect
+
+Gather the following from your database administrator:
+
+- **Host** (e.g. `db.example.com`)
+- **Port** — defaults to `5432`
+- **Database name** — defaults to `postgres` if left blank
+- **Username** and **password**
+- **SSL mode** — `disable`, `require`, `verify-ca`, or `verify-full`
+
+<Tip>
+  We strongly recommend `require` or stricter for any database reachable outside a private network.
+</Tip>
+
+## Create a read-only role
+
+Datost only needs `SELECT`. Create a dedicated role so the agent cannot mutate data.
+
+<CodeGroup>
+```sql grants.sql
+CREATE ROLE datost_readonly LOGIN PASSWORD 'use-a-strong-password';
+
+GRANT CONNECT ON DATABASE your_database TO datost_readonly;
+GRANT USAGE ON SCHEMA public TO datost_readonly;
+
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO datost_readonly;
+
+-- Apply SELECT to any tables created later
+ALTER DEFAULT PRIVILEGES IN SCHEMA public
+  GRANT SELECT ON TABLES TO datost_readonly;
+```
+
+```sql multi-schema.sql
+-- Repeat USAGE + SELECT for every schema you want Datost to see
+GRANT USAGE ON SCHEMA analytics TO datost_readonly;
+GRANT SELECT ON ALL TABLES IN SCHEMA analytics TO datost_readonly;
+
+ALTER DEFAULT PRIVILEGES IN SCHEMA analytics
+  GRANT SELECT ON TABLES TO datost_readonly;
+```
+</CodeGroup>
+
+<Note>
+  Tables you never grant `SELECT` on stay invisible to the agent. You can further hide specific tables from the admin panel under **Data sources → Table preferences**.
+</Note>
+
+## Connect from the admin panel
+
+<Steps>
+  <Step title="Open Data Sources">
+    In the Datost web app, go to **Data sources** and click **Add data source**.
+  </Step>
+  <Step title="Select PostgreSQL">
+    Pick **PostgreSQL** from the list of warehouse types.
+  </Step>
+  <Step title="Enter connection details">
+    Fill in host, port, database, username, password, and SSL mode. Paste a connection URL if you prefer — Datost will parse it into fields.
+  </Step>
+  <Step title="Test the connection">
+    Click **Test connection**. Datost runs `SELECT version()` against your database and reports latency and server version.
+  </Step>
+  <Step title="Save and invite the agent">
+    Save the data source, then choose which Slack roles can query it.
+  </Step>
+</Steps>
+
+## Public vs private databases
+
+If your PostgreSQL instance is reachable over the public internet (with SSL and IP allow-listing), the direct connection above is all you need.
+
+For databases on a private VPC, behind a bastion, or otherwise unreachable from Datost's servers, install the [Tunnel Agent](/integrations/developer/tunnel-agent) inside your network. The agent opens an outbound connection to Datost and proxies queries to your database — no inbound firewall changes required.
+
+<Warning>
+  Do not expose a production database to the public internet just to connect Datost. Use the Tunnel Agent instead.
+</Warning>
+
+## Limitations
+
+- Datost executes `SELECT` queries only. Writes, DDL, and transactions are blocked.
+- Connection pools cap at 5 concurrent connections per data source with a 15s connect timeout.
+- Queries run against your live database; budget accordingly or point Datost at a replica.
+- Tables excluded via table preferences are omitted from schema introspection and query planning.

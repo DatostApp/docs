@@ -1,0 +1,81 @@
+---
+title: Zoho CRM
+description: Connect your Zoho CRM organization to Datost and explore modules, fields, and records from Slack or the web app.
+---
+
+Connect Zoho CRM to let your team ask Datost questions like `@Datost how many open deals are in the Enterprise pipeline?` and have them answered live against your CRM data.
+
+<Note>
+  Datost's Zoho integration is scoped to **Zoho CRM**. Other Zoho products (Books, Desk, Inventory, etc.) are not currently supported.
+</Note>
+
+## What you get
+
+- Browse every Zoho CRM module (Leads, Contacts, Deals, Accounts, and custom modules) with searchable schema inspection.
+- Inspect field metadata including data type, length, read-only, and mandatory flags.
+- Run [COQL](https://www.zoho.com/crm/developer/docs/api/v7/COQL-Overview.html) queries against any module directly from the admin panel or through Slack.
+
+## OAuth flow and scopes
+
+Datost uses Zoho's OAuth 2.0 authorization code flow with offline access so refresh tokens are stored and used for every subsequent query. The following scopes are requested:
+
+- `ZohoCRM.modules.ALL` — read records across every module
+- `ZohoCRM.settings.ALL` — read module metadata and field definitions
+
+<Warning>
+  Zoho only issues a refresh token on the **first** authorization. If you re-authorize, make sure to approve the consent screen again so Datost can store the new refresh token.
+</Warning>
+
+## Data center selection
+
+Zoho partitions customer data across eight regional data centers. Datost will only talk to the accounts and API host for the region you choose, so picking the correct one is required.
+
+| Region | Accounts host | API host |
+| --- | --- | --- |
+| US | `accounts.zoho.com` | `www.zohoapis.com` |
+| EU | `accounts.zoho.eu` | `www.zohoapis.eu` |
+| India | `accounts.zoho.in` | `www.zohoapis.in` |
+| Australia | `accounts.zoho.com.au` | `www.zohoapis.com.au` |
+| Japan | `accounts.zoho.jp` | `www.zohoapis.jp` |
+| China | `accounts.zoho.com.cn` | `www.zohoapis.com.cn` |
+| Canada | `accounts.zohocloud.ca` | `www.zohoapis.ca` |
+| Saudi Arabia | `accounts.zoho.sa` | `www.zohoapis.sa` |
+
+If you are unsure, sign in to Zoho CRM in a browser and check the domain — `.com` is US, `.eu` is EU, and so on.
+
+## Connecting from the admin panel
+
+<Steps>
+  <Step title="Open Knowledge Sources">
+    In the Datost web app, navigate to **Knowledge Sources** and click **Add connection**.
+  </Step>
+  <Step title="Pick Zoho CRM">
+    Select **Zoho CRM** from the connector picker.
+  </Step>
+  <Step title="Name and choose region">
+    Give the connection a name (e.g. `Zoho CRM — Production`), optionally add a description, and pick the data center region that matches your Zoho org.
+  </Step>
+  <Step title="Authorize with Zoho">
+    You'll be redirected to Zoho's consent screen. Sign in with an account that has access to the modules you want Datost to read, and approve the requested scopes.
+  </Step>
+  <Step title="Verify">
+    Datost returns to the admin panel, exchanges the authorization code for tokens, and runs a health check. Use **Test connection** any time to re-verify.
+  </Step>
+</Steps>
+
+## Supported objects
+
+Every module returned by `settings/modules` is available, including:
+
+- **Standard modules** — Leads, Contacts, Accounts, Deals, Tasks, Events, Calls, Products, Quotes, Sales Orders, Invoices, Campaigns, Cases, Solutions, Vendors, Price Books.
+- **Custom modules** — any module your org has defined.
+
+Datost reads both metadata (`/settings/modules/{module}`) and records (via COQL `SELECT` queries).
+
+## Limitations
+
+- **Zoho CRM only.** Books, Desk, Inventory, Creator, and other Zoho products are not yet supported.
+- **Read-only.** Datost does not write back to Zoho — no record creation, updates, or deletes.
+- **COQL constraints apply.** Queries must follow Zoho's COQL rules (e.g. `LIMIT` max 200 per page, joins limited to lookup fields).
+- **Refresh token required.** If Zoho does not return a refresh token on initial consent, the connection will fail — re-authorize with the consent prompt.
+- **Region is immutable.** The data center is pinned at connection time; switching regions requires creating a new connection.

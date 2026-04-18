@@ -1,0 +1,57 @@
+---
+title: "Log Connections"
+description: "Connect Datadog, Sentry, Axiom, and other observability tools so Datost can pull logs, traces, and events alongside your warehouse data."
+---
+
+A **Log Connection** is a configured link between Datost and an external operational data source — typically an observability, product analytics, or CRM API. Unlike warehouse connections, which let the agent write SQL, Log Connections give Datost a typed set of tools to query services like Datadog, Sentry, PostHog, Axiom, HubSpot, Monday.com, Salesforce, QuickBooks, Zoho, and Granola directly through their APIs.
+
+## What Datost uses them for
+
+Log Connections let the agent answer questions that warehouse data alone cannot:
+
+- **Incident and error investigation.** Pull recent Sentry issues, Datadog logs, or Axiom events when a metric spikes or a user reports a bug.
+- **Product analytics lookups.** Query PostHog funnels, events, and person properties alongside warehouse revenue data.
+- **CRM context for revenue questions.** Cross-reference HubSpot, Salesforce, or Zoho records when someone asks about a specific deal, contact, or pipeline stage.
+- **Ops and finance context.** Read QuickBooks invoices, Monday boards, or Granola meeting notes to enrich answers with operational ground truth.
+
+<Note>
+  Log Connections are read-only tools. Datost queries the external API to answer a question, then formats the results inline in Slack — it does not sync or copy data into your warehouse.
+</Note>
+
+## Supported connection types
+
+Each type has its own auth model, configured once per connection:
+
+- **API key**: Datadog (site + API key + App key), Sentry (org slug + auth token), Axiom (API token + optional dataset), Granola, Monday.com, PostHog (personal API key).
+- **OAuth**: HubSpot, Salesforce, QuickBooks, Zoho, PostHog (OAuth flow).
+
+## Connect a source
+
+<Steps>
+  <Step title="Open Log Connections">
+    In the Datost web app, go to **Settings → Log Connections** and click **Add connection**. Pick the type you want to connect.
+  </Step>
+  <Step title="Provide credentials">
+    For API-key types, paste the required fields (for example, Datadog site `datadoghq.com`, API key, and App key). For OAuth types, click **Connect** and complete the provider's consent screen — Datost stores refresh tokens encrypted and rotates access tokens automatically.
+  </Step>
+  <Step title="Add a description">
+    Write a short description of what this connection covers (e.g. "Production Datadog — API and worker services"). The agent reads this to decide when to reach for the tool.
+  </Step>
+  <Step title="Scope access with roles">
+    Optionally restrict the connection to specific custom roles so only certain Slack channels or users can trigger queries against it.
+  </Step>
+</Steps>
+
+## Query format
+
+You do not write queries yourself. Datost exposes each connection as a set of typed tools — for example, `datadog.search_logs`, `sentry.list_issues`, `posthog.query_events`, `hubspot.search_contacts`. The agent picks the right tool and parameters based on the Slack question, then summarizes results in thread.
+
+<Warning>
+  Secrets never leave Datost's encrypted secret store. Rotate the underlying API key or OAuth grant in the source system if a credential is compromised — Datost will surface refresh errors in the connection list.
+</Warning>
+
+## Limitations
+
+- Rate limits are the provider's. A very chatty question may hit Datadog or HubSpot quotas; Datost surfaces the error rather than retrying aggressively.
+- Historical depth is whatever the provider exposes via API (for example, Datadog log retention on your plan).
+- Only the connection types listed above are supported today. Arbitrary custom HTTP endpoints are not yet available — reach out if you need one.

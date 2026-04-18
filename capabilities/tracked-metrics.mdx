@@ -1,0 +1,82 @@
+---
+title: Tracked Metrics & Monitors
+description: Pin any number to a time-series, watch it on a schedule, and let Datost investigate the moment it moves.
+---
+
+A Tracked Metric is a query that Datost reruns on a schedule, storing each result as a point on a time-series. Add a Monitor and Datost will watch that series around the clock, ping Slack the moment something looks off, and kick off an AI investigation before you finish reading the alert.
+
+<Note>
+  Tracked Metrics turn a one-off answer into a standing dashboard. Monitors turn that dashboard into a paging system with a data analyst attached.
+</Note>
+
+## What you get
+
+- Any number your warehouse can produce, watched on the cadence you choose.
+- Slack alerts with context: current value, comparison window, and the chart.
+- Automatic investigations that hypothesize why the metric moved and post findings back in thread.
+- A running timeline of events, notes, and snapshots for every metric you track.
+
+## Create a tracked metric
+
+<Steps>
+  <Step title="Start from a chart or a question">
+    Ask Datost a question in Slack or open any saved chart in the web app. When the answer is a single number or a simple time-series, you will see a **Track this metric** action.
+  </Step>
+  <Step title="Name it and pick a cadence">
+    Give the metric a name your team will recognize (`Signups (daily)`, `MRR`, `P95 checkout latency`). Choose a refresh interval: hourly, every few hours, daily, or weekly. Datost will rerun the underlying query on that schedule and append a snapshot each time.
+  </Step>
+  <Step title="Confirm">
+    Datost backfills recent history where it can and starts capturing forward. The metric shows up on your **Tracked Metrics** page with a live sparkline.
+  </Step>
+</Steps>
+
+<Tip>
+  Break a metric out by a dimension (plan, region, customer) and Datost will track each series under the same metric, so one monitor can watch them all.
+</Tip>
+
+## Add a monitor
+
+A Monitor is an alert condition layered on a tracked metric. Pick the shape that matches what "bad" looks like:
+
+<AccordionGroup>
+  <Accordion title="Absolute floor / ceiling">
+    Fire when the value crosses a hard threshold you set, for example "alert if daily signups fall below 50" or "alert if error rate exceeds 2%".
+  </Accordion>
+  <Accordion title="Daily percent drop / rise">
+    Fire when the value moves by more than a set percentage versus a comparison window (default: 24 hours). Good for "wake me if revenue drops 15% day-over-day".
+  </Accordion>
+  <Accordion title="Trailing stop-loss / take-profit">
+    Fire when the value retraces a set percent from its recent peak (or rebounds from its recent trough). Useful for metrics that climb over time, where the absolute number keeps changing.
+  </Accordion>
+</AccordionGroup>
+
+Each monitor has a **cooldown** so you do not get paged every refresh, a Slack channel to notify, and an optional investigation prompt that steers the AI.
+
+## Monitor states and what happens when one fires
+
+A monitor sits in one of three states: **OK** (all series within bounds), **triggered** (at least one series has crossed the condition), or **recovered** (the series came back inside the bounds). Transitions are what generate alerts.
+
+<Steps>
+  <Step title="Slack alert">
+    The moment a monitor triggers, Datost posts to the channel you picked: metric name, current value, the threshold it broke, and a chart with the breach highlighted.
+  </Step>
+  <Step title="Auto-investigation kicks off">
+    Datost immediately starts a **metric investigation** in-thread. The AI pulls recent snapshots, slices by the dimensions on the metric, queries related tables, and forms a hypothesis about the root cause.
+  </Step>
+  <Step title="Findings posted in-thread">
+    When the investigation completes, Datost replies with a summary, a likely root cause, affected entities (plans, regions, customers), the data points it found, and a recommended next step.
+  </Step>
+  <Step title="Recovery">
+    When the series moves back inside the monitor's bounds, Datost posts a recovery message and the monitor returns to OK.
+  </Step>
+</Steps>
+
+## The metric timeline
+
+Every tracked metric has a timeline that captures its life: when it was proposed, when it activated, each monitor trigger, completed investigations, and any notes your team added from Slack or the web. Notes are first-class, so whenever someone explains a spike ("marketing launch on Tuesday") that context is pinned to the event and shown the next time the metric moves.
+
+<Warning>
+  Investigations are only as smart as the data Datost can see. If a monitor fires on a metric that lives in a warehouse Datost is not connected to, the AI will note that it could not investigate. Connect the relevant source and Datost will retry.
+</Warning>
+
+Pause a monitor during a planned migration, archive metrics you no longer care about, or tweak thresholds as your business changes. Everything is editable from the metric's detail page.

@@ -1,0 +1,76 @@
+---
+title: "Slack overview"
+description: "Datost is a Slack-native AI data analyst. This is how your team actually uses it — @mentions, DMs, slash commands, and scheduled reports."
+---
+
+Slack is Datost's primary surface. You ask questions the same way you'd ask a teammate — with an @mention in a channel, a DM, or a slash command — and Datost replies in-thread with the answer, the SQL it ran, and a link to the full response in the web app.
+
+<Note>
+If you haven't installed the Slack app yet, start at [Install Datost in Slack](/integrations/communication/slack). Everything below assumes the app is installed and at least one data source is connected.
+</Note>
+
+## The four ways people use Datost
+
+<CardGroup cols={2}>
+  <Card title="Mentions in channels" icon="at" href="/slack/mentions-and-threads">
+    `@Datost what was revenue last week?` in any channel where the bot is a
+    member. Replies land in-thread. Follow-ups in the same thread reuse context.
+  </Card>
+  <Card title="Direct messages" icon="message" href="/slack/mentions-and-threads">
+    DM the Datost app for a private conversation. No @mention needed — every
+    message is treated as a question.
+  </Card>
+  <Card title="Slash commands" icon="slash" href="/slack/slash-commands">
+    `/datost link` to connect your account, `/datost schedule` to set up
+    recurring reports, `/datost help` for the full list.
+  </Card>
+  <Card title="Scheduled reports" icon="calendar" href="/capabilities/scheduled-reports">
+    Recurring prompts that run on a cron and deliver results to a channel, DM,
+    or group chat. Created via `/datost schedule`.
+  </Card>
+</CardGroup>
+
+## The assistant thread (native Slack AI surface)
+
+If your workspace has Slack's native AI assistant UX enabled, Datost shows up in the right-hand assistant pane. Opening it starts an `assistant_thread` — a dedicated, scoped conversation that's aware of whatever channel you had open when you launched it. Every message you send in that pane is treated as a question; Datost streams a typing status, posts the answer, and can suggest follow-ups. Changing the surrounding channel sends a `context_changed` signal so the next question can pick up the new channel's context automatically.
+
+Mentions in regular channels use the standard thread model: Datost replies as a threaded message under your question, and any reply you add to that thread is treated as a follow-up.
+
+## Where results go
+
+- **Thread replies** — the primary answer lands as a Slack message in the same thread as your question, with inline charts (bar, line, area, pie) rendered as Block Kit images.
+- **"View full response" link** — every reply includes a deep link to the hosted response page in the web app, where you can see the full tool trace, SQL, sortable result tables, and timing. See [Viewing Slack responses](/capabilities/slack-responses).
+- **Follow-ups** — reply in the same thread. Datost reuses the prior query's sandbox when it's still warm, so iterations stay fast.
+- **Cancel a running query** — react to Datost's "thinking" message with ❌ and it will stop.
+
+## Who can ask Datost
+
+By default, **any member of the Slack workspace** can @mention Datost in a channel the bot is in, or DM it. There's no per-user allowlist at the Slack layer.
+
+Identity and attribution, though, depend on account linking:
+
+- **Linked users** (ran `/datost link` and completed the web-app flow) are attributed to their Datost account. Their queries show up in the web app under their user, and they can create and own scheduled reports.
+- **Unlinked users** can still ask questions — Datost resolves the workspace's Datost org from the Slack team ID and answers using the org's connected data sources. The query is recorded against the Slack user, not a Datost user.
+
+<Tip>
+Org admins can restrict Datost to specific channels by only inviting the bot to those channels. Permissions on the underlying data (which warehouse, which tables) are enforced in the web app per [context](/capabilities/contexts), not per Slack user.
+</Tip>
+
+Rate limits are enforced per Slack user and per channel (hourly and daily). If you hit one, Datost replies with a retry-after hint.
+
+## Next
+
+<CardGroup cols={2}>
+  <Card title="Mentions & threads" icon="comments" href="/slack/mentions-and-threads">
+    How thread context, follow-ups, and the assistant pane behave.
+  </Card>
+  <Card title="Slash commands" icon="terminal" href="/slack/slash-commands">
+    Every `/datost` subcommand, with examples.
+  </Card>
+  <Card title="Scheduled reports" icon="clock" href="/capabilities/scheduled-reports">
+    Recurring research delivered to Slack on a cron.
+  </Card>
+  <Card title="Install Datost in Slack" icon="plug" href="/integrations/communication/slack">
+    OAuth, scopes, and adding the bot to channels.
+  </Card>
+</CardGroup>

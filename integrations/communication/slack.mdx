@@ -1,0 +1,81 @@
+---
+title: Slack
+description: Install Datost in your Slack workspace and connect personal identities so your team can query data without leaving Slack.
+---
+
+Datost is Slack-native. Installing the app lets your team @-mention `@Datost` in any channel, run slash commands, and get answers streamed back as threaded replies.
+
+<Note>
+  This page covers installing and connecting the app. For day-to-day usage (mentions, DMs, schedules, slash commands), see the Using Datost in Slack guide.
+</Note>
+
+## Install Datost in your workspace
+
+Any Datost admin can install the app. You need permission to add apps to your Slack workspace.
+
+<Steps>
+  <Step title="Start the install from Datost">
+    In the Datost web app, open **Settings > Integrations > Slack** and click **Add to Slack**. You'll be redirected to Slack's OAuth consent screen.
+  </Step>
+  <Step title="Review the requested scopes">
+    Slack lists every scope the Datost bot requests. Highlights: `app_mentions:read`, `chat:write`, `assistant:write`, `channels:history`, `groups:history`, `im:history`, `mpim:history`, `files:read`, `reactions:write`, `commands`, and search scopes (`search:read.public`, `search:read.files`). A user token is also granted for private search (`search:read.private`, `search:read.im`, `search:read.mpim`).
+  </Step>
+  <Step title="Approve and return to Datost">
+    Slack redirects back to `/api/slack/oauth/callback`. Datost creates a `slackConnection` tied to your org, encrypts the bot and user tokens, and records the granted scopes.
+  </Step>
+</Steps>
+
+<Warning>
+  Only one Datost org can claim a given Slack workspace at a time. If another org already installed Datost in that workspace, the second install will fail until the first disconnects.
+</Warning>
+
+## Link your personal Slack identity
+
+Each person who wants to query Datost from Slack needs to link their Slack user to their Datost account so permissions and data-source access follow them.
+
+From Slack, run `/datost link` and follow the ephemeral link back to Datost to authorize. Linked identities live in `slackAccountLinks` and expire if you revoke them.
+
+<Tip>
+  Admins can pre-provision links by inviting teammates to the Datost org with the same email as their Slack profile; first `/datost link` completes instantly.
+</Tip>
+
+## Choose which channels Datost can read
+
+By default Datost only responds when @-mentioned or DM'd. To let it search historical Slack context as a knowledge source, invite the bot to the channels you want indexed.
+
+<Steps>
+  <Step title="Invite the bot to a channel">
+    In any channel, run `/invite @Datost`. For private channels, a member has to invite the bot explicitly.
+  </Step>
+  <Step title="Pick indexed channels in Datost">
+    In **Settings > Integrations > Slack > Channels**, toggle which invited channels sync. Synced channels appear in `slackChannels`; messages are chunked into `slackChunks` for semantic retrieval.
+  </Step>
+  <Step title="Scope per channel (optional)">
+    Each channel can add or remove specific data sources, repos, and MCP servers Datost is allowed to use when it answers there.
+  </Step>
+</Steps>
+
+## Workspace admin controls
+
+Org admins can, from **Settings > Integrations > Slack**:
+
+- Toggle events on or off (`eventsEnabled`) to pause all @-mention replies without uninstalling.
+- Set per-user rate limits (queries per hour and per day).
+- Allow or block specific channels, data sources, log connections, repos, and MCP servers at the workspace level.
+- Attach external MCP servers that become available to the Slack agent.
+
+## Disconnect or reinstall
+
+To remove Datost, click **Disconnect** in Datost settings, or uninstall the app from **Slack > Apps > Datost > Configuration**. Disconnecting cascades: channels, chunks, sync jobs, and account links are deleted.
+
+<Warning>
+  Disconnecting is destructive. Indexed Slack knowledge has to be re-synced after reinstall, and all `/datost link` identities must re-link.
+</Warning>
+
+To reinstall, just run **Add to Slack** again. Datost detects the existing `teamId` and refreshes tokens and scopes in place.
+
+## Limitations
+
+- **One Datost org per workspace.** A Slack workspace maps to exactly one `slackConnection`.
+- **Multi-workspace support.** A single Datost org can connect multiple Slack workspaces (one connection each); Enterprise Grid is supported workspace-by-workspace.
+- **Scopes.** If Slack adds new scopes Datost needs, you'll be prompted to reauthorize; stale connections surface a reconnect banner in-app.

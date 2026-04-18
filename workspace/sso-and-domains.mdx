@@ -1,0 +1,71 @@
+---
+title: "SSO & Domain Sign-in"
+description: "How Datost authenticates users, and how to let teammates join your workspace automatically by email domain."
+---
+
+Datost uses [Clerk](https://clerk.com) for authentication. Everyone on your team signs in the same way — through Google, Microsoft, or a one-time email code — and admins can let new teammates join the workspace automatically based on their email domain.
+
+## Sign-in methods
+
+Every Datost user authenticates through Clerk. The web app offers two paths:
+
+- **Continue with Google** — one-click OAuth. Recommended for most teams.
+- **Email + verification code** — a 6-digit code is sent to the user's inbox. Works as both sign-in and sign-up; the flow picks automatically based on whether the email already has an account.
+
+<Note>
+  Microsoft, GitHub, and other OAuth providers can be enabled at the Clerk tenant level on request. Contact your Datost rep if your team standardizes on a different IdP.
+</Note>
+
+## Device auth for the desktop app
+
+The Datost desktop app (Tauri) signs in through a device-code flow instead of embedding a browser:
+
+<Steps>
+  <Step title="Launch the app">
+    The app opens your default browser to a Datost-hosted device auth page and displays a short code.
+  </Step>
+  <Step title="Approve in the browser">
+    Sign in on the web (Google or email code), confirm the code, and approve the device.
+  </Step>
+  <Step title="Return to the app">
+    The desktop app polls for approval and exchanges the device code for a long-lived app token. Sign-in survives app restarts.
+  </Step>
+</Steps>
+
+## Domain auto-join
+
+Instead of sending individual invites, admins can register their company's email domain. Anyone who signs up with a matching verified email either joins the workspace automatically or lands in an approval queue.
+
+When an org is created, Datost attempts to **auto-seed** the creator's domain (e.g. `acme.com` from `founder@acme.com`). Auto-join is off by default — the admin opts in via a toggle to avoid surprise joins for consultancies whose "company domain" belongs to a client.
+
+### Add or manage a domain
+
+<Steps>
+  <Step title="Open workspace settings">
+    Go to **Settings → Workspace → Domains** (admin only).
+  </Step>
+  <Step title="Add your domain">
+    Enter your company domain (e.g. `acme.com`). Your own primary email must be verified and end in that domain — this prevents anyone from claiming a domain they don't actually belong to.
+  </Step>
+  <Step title="Choose the join mode">
+    - **Auto-join** — matching users land inside the workspace immediately as a member.
+    - **Request access** — matching users create a pending access request that admins approve or reject.
+  </Step>
+</Steps>
+
+<Warning>
+  Public and shared email providers (Gmail, Outlook, iCloud, Yahoo, ProtonMail, major ISPs, disposable mail services) cannot be claimed. Each non-public domain can be owned by exactly one workspace.
+</Warning>
+
+## Security behavior
+
+- **Verified emails only.** Domain seeding and domain claiming both require a Clerk-verified primary email. Unverified addresses are rejected, closing the hijack path where an attacker signs up as `ceo@target.com` without controlling the inbox.
+- **One domain, one workspace.** A unique constraint in the database guarantees a domain is never claimed twice. Concurrent claim attempts return a 409 instead of silently overwriting.
+- **Auto-join off by default.** Every new domain starts in request-access mode. Admins opt in explicitly.
+- **Full audit trail.** `ORG_DOMAIN_ADDED`, `ORG_DOMAIN_UPDATED`, `ORG_DOMAIN_REMOVED`, `MEMBER_AUTO_JOINED`, and `MEMBER_ACCESS_REQUESTED` events are written to the audit log with actor, IP, and metadata.
+
+## SAML SSO
+
+<Note>
+  SAML / enterprise SSO is on the roadmap and available through Clerk's Enterprise Connections on request. If your team needs SAML, SCIM provisioning, or an IdP-enforced login policy, reach out to your Datost contact and we'll provision a dedicated connection for your domain.
+</Note>

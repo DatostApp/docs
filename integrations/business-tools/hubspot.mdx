@@ -1,0 +1,69 @@
+---
+title: "HubSpot"
+description: "Connect HubSpot so Datost can answer questions about your CRM — contacts, companies, deals, and pipelines — directly from Slack."
+---
+
+Connecting HubSpot turns your CRM into a queryable data source for Datost. Ask about pipeline health, deal velocity, top accounts, or ticket backlog in Slack, and Datost will pull live records from HubSpot to answer.
+
+## What you unlock
+
+- **CRM context in Slack** — ask natural-language questions about your sales and support data without leaving Slack.
+- **Pipeline and deal analytics** — forecast coverage, stage conversion, and stalled deals across your pipelines.
+- **Account and contact lookups** — surface the companies and contacts behind a question, with their latest activity.
+- **Ticket and engagement insight** — pull ticket status, calls, emails, and meetings tied to an account.
+
+## Connect HubSpot
+
+Datost uses HubSpot's OAuth 2.0 flow. You'll need to be a HubSpot Super Admin (or have app install permissions) on the portal you're connecting.
+
+<Steps>
+  <Step title="Open Data Sources in the admin panel">
+    In the Datost web app, go to **Settings → Data Sources** and click **Add connection**.
+  </Step>
+  <Step title="Choose HubSpot">
+    Pick **HubSpot** from the connection picker. Datost creates a pending connection and generates a signed OAuth state token.
+  </Step>
+  <Step title="Authorize in HubSpot">
+    You'll be redirected to `app.hubspot.com/oauth/authorize`. Select the HubSpot portal you want to connect and review the requested scopes.
+  </Step>
+  <Step title="Finish the handoff">
+    HubSpot redirects back to Datost, which exchanges the authorization code for access and refresh tokens, stores the `hub_id` (portal ID), and marks the connection active.
+  </Step>
+</Steps>
+
+<Note>
+  OAuth state is signed with an HMAC and expires after 10 minutes. If the browser tab sits idle too long, restart the flow from the admin panel.
+</Note>
+
+## Scopes requested
+
+Datost requests the minimum scopes needed to read CRM objects:
+
+- `oauth` — required baseline scope.
+- `crm.objects.contacts.read`
+- `crm.objects.companies.read`
+- `crm.objects.deals.read`
+- `tickets`
+
+Datost never requests write scopes — the integration is strictly read-only.
+
+## What Datost can query
+
+Once connected, Datost can read these HubSpot objects:
+
+- **Core CRM**: contacts, companies, deals, tickets
+- **Commerce**: products, line items, quotes
+- **Engagements**: calls, emails, meetings, notes, tasks
+
+Each record exposes its standard HubSpot properties (for example `dealname`, `amount`, `firstname`, `email`, `hs_meeting_title`) along with `createdAt`, `updatedAt`, and archived status.
+
+## Limitations
+
+- **Rate limits** — Datost respects HubSpot's public API rate limits (per-app, per-portal). Very large portals may see paginated or throttled responses on broad queries.
+- **Custom properties** — standard HubSpot properties are supported out of the box. Custom properties are readable but may need to be referenced by their internal name.
+- **Token refresh** — access tokens auto-refresh in the background. If refresh fails (for example, the app was uninstalled in HubSpot), the connection is flagged and you'll need to reconnect from the admin panel.
+- **Read-only** — Datost cannot create or modify HubSpot records.
+
+<Note>
+  To revoke access, uninstall the Datost app from **HubSpot Settings → Integrations → Connected Apps**, or delete the connection in the Datost admin panel.
+</Note>

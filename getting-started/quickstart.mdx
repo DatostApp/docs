@@ -1,0 +1,83 @@
+---
+title: Quickstart
+description: From zero to your first answer in Slack in about ten minutes.
+---
+
+This guide gets you from a brand-new Datost org to a real answer posted in Slack. Plan on about ten minutes if you already have a database and Slack admin access.
+
+## Prerequisites
+
+- A Datost organization (sign up at [app.datost.com](https://app.datost.com) or ask your workspace admin to invite you)
+- Slack workspace admin rights (or help from someone who has them)
+- Read access to at least one database or warehouse
+
+## 1. Install Datost in Slack
+
+<Steps>
+  <Step title="Start the install">
+    In the Datost web app, open **Admin → Slack** and click **Install**. You'll be redirected to Slack's OAuth consent.
+  </Step>
+  <Step title="Approve the scopes">
+    Review the requested scopes and approve. You'll land back in Datost once the workspace is linked.
+  </Step>
+  <Step title="Link your personal Slack identity">
+    In Slack, run `/datost link` and follow the ephemeral message to connect your Slack user to your Datost account.
+  </Step>
+</Steps>
+
+More detail: [Slack install guide](/integrations/communication/slack).
+
+## 2. Connect a data source
+
+<Steps>
+  <Step title="Open the admin panel">
+    In the web app, go to **Admin → Data sources** and click **Add data source**.
+  </Step>
+  <Step title="Pick your database">
+    Choose from warehouses (BigQuery, Snowflake, Databricks, ClickHouse) or databases (Postgres, MySQL, MSSQL, Firestore). Full list under [Integrations](/integrations/warehouses/overview).
+  </Step>
+  <Step title="Authenticate">
+    Paste credentials or complete OAuth. For databases behind a VPC, install the [Tunnel Agent](/integrations/developer/tunnel-agent) first.
+  </Step>
+  <Step title="Test the connection">
+    Datost runs a quick introspection query. Once it succeeds, the tables show up in the schema explorer.
+  </Step>
+</Steps>
+
+<Tip>
+  Use a read-only database user. Datost never needs write access.
+</Tip>
+
+## 3. Ask your first question
+
+In any Slack channel Datost is a member of (or in a DM):
+
+```
+@Datost how many signups did we get last week?
+```
+
+Datost will:
+
+1. Read your schema
+2. Write SQL
+3. Run it
+4. Reply in the thread with the answer, chart, and underlying query
+
+Follow up in the same thread — Datost keeps conversation context. For more, see [mentions and threads](/slack/mentions-and-threads).
+
+## 4. Level up
+
+<CardGroup cols={2}>
+  <Card title="Track a metric" icon="chart-line" href="/capabilities/tracked-metrics">
+    Turn the answer into a monitored time-series with alerts.
+  </Card>
+  <Card title="Schedule a report" icon="calendar-clock" href="/capabilities/scheduled-reports">
+    Post a weekly summary to a channel automatically.
+  </Card>
+  <Card title="Build a dashboard" icon="chart-bar" href="/capabilities/dashboards">
+    Pin charts from conversations for team-wide visibility.
+  </Card>
+  <Card title="Explore in the web app" icon="browser" href="/getting-started/web-app-tour">
+    Longer-form analysis lives at `app.datost.com`.
+  </Card>
+</CardGroup>

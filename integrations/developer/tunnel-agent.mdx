@@ -1,0 +1,73 @@
+---
+title: "Tunnel Agent"
+description: "Connect Datost to databases inside your VPC or private network without opening them to the internet."
+---
+
+Tunnel Agent is a lightweight process you run inside your own network that lets Datost query databases that aren't publicly reachable. Instead of whitelisting Datost's IP range or exposing your database to the internet, the agent opens a single outbound WebSocket to Datost and proxies SQL over it.
+
+<Note>
+  Use Tunnel Agent when your database lives behind a VPC, VPN, bastion host, or on-prem firewall. If your database already accepts connections from the internet, connect directly — the standard [PostgreSQL](/integrations/warehouses/postgresql) or [MySQL](/integrations/warehouses/mysql) flow is simpler.
+</Note>
+
+## How it works
+
+The agent runs as a desktop app (or headless binary) on a machine that can reach your database — a laptop on the VPN, a small VM inside the VPC, or a container on your Kubernetes cluster. It holds an outbound WebSocket to `wss://app.datost.com/tunnel`. When the Slack agent needs to run a query, Datost sends the SQL down the socket, the local agent executes it against your database, and results stream back.
+
+- **Outbound-only**: no inbound ports, no public IP, no firewall changes on your side.
+- **TLS end-to-end**: the WebSocket runs over TLS; the connection to your database uses whatever SSL mode you configure on the data source.
+- **Credentials stay with Datost's encrypted vault**; they're decrypted server-side per query and sent down the authenticated tunnel to the agent, which connects to the database locally.
+
+## Supported databases
+
+Tunnel Agent currently proxies:
+
+- PostgreSQL
+- MySQL
+
+Other warehouses (Snowflake, BigQuery, Databricks, ClickHouse, MSSQL) are reached through their native connectors and don't need the tunnel.
+
+## Install and pair
+
+<Steps>
+  <Step title="Download the agent">
+    In the Datost web app, open **Settings → Tunnel Agents** and click **Download**. Pick macOS, Windows, or Linux.
+  </Step>
+  <Step title="Run it on a machine with database access">
+    Launch the app and sign in with your Datost workspace account. The agent fingerprints the device and registers itself under a human-readable name like `alice-macbook-pro`.
+  </Step>
+  <Step title="Enable the tunnel on a data source">
+    When adding or editing a PostgreSQL or MySQL connection, toggle **Route through Tunnel Agent**. Use the database's internal hostname (e.g. `db.internal`, `10.0.3.14`, `postgres.svc.cluster.local`) — the agent resolves it from inside your network.
+  </Step>
+  <Step title="Test the connection">
+    Click **Test connection**. Datost dispatches a probe query through any online agent in your workspace. A green check means you're live.
+  </Step>
+</Steps>
+
+<Tip>
+  Run the agent on more than one machine for redundancy. Datost load-balances across online agents and caches which agent successfully reached each data source for 5 minutes, so repeat queries stick to a known-good route.
+</Tip>
+
+## Lifecycle
+
+- **Pairing token** — the agent authenticates with a scoped token tied to your org, user, device name, and device ID. Revoke it from **Settings → Tunnel Agents** to kick a device offline.
+- **Heartbeat** — the agent pings every 30 seconds. Missed heartbeats mark it offline in the dashboard.
+- **Reconnection** — if the WebSocket drops (laptop sleeps, Wi-Fi flaps), the agent reconnects automatically with exponential backoff. In-flight queries fail fast with a retryable error; Datost surfaces a friendly "Couldn't reach `<source>`. Open Datost on a device that can access this database." message in Slack.
+- **Query timeout** — each tunneled query has a 30-second server-side ceiling.
+
+## Security posture
+
+- The agent never accepts inbound connections.
+- Tokens are org-scoped; a compromised token can't reach another workspace's data.
+- The agent only executes SQL that Datost's server-side guardrails have already classified as read-only (`SELECT`-class statements).
+- All agent activity — connects, disconnects, query attempts — is recorded in the audit log.
+
+<Warning>
+  Anyone who can run SQL as the database user you configured can read everything that user can read. Always point Tunnel Agent at a dedicated, read-only role — see the `datost_readonly` snippet in the [PostgreSQL guide](/integrations/warehouses/postgresql#create-a-read-only-role).
+</Warning>
+
+## Limitations
+
+- PostgreSQL and MySQL only today. MSSQL tunneling is on the roadmap.
+- If every paired device is offline, tunneled queries fail until one comes back online — there's no server-side fallback.
+- Result sets are capped at the data source's configured `maxRows` (default 1,000) before streaming back.
+- The agent must stay signed in; signing out of the desktop app disconnects the tunnel.

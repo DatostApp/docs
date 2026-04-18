@@ -1,0 +1,51 @@
+---
+title: Warehouses & databases
+description: Every database and warehouse Datost can query directly.
+---
+
+Datost runs live queries against the warehouses and databases you connect. Data stays in your systems — Datost pulls results only when answering a question.
+
+## Supported sources
+
+<CardGroup cols={2}>
+  <Card title="BigQuery" icon="google" href="/integrations/warehouses/bigquery">
+    Google Cloud warehouse. OAuth or service account.
+  </Card>
+  <Card title="Snowflake" icon="snowflake" href="/integrations/warehouses/snowflake">
+    Username/password or key-pair auth.
+  </Card>
+  <Card title="Databricks" icon="database" href="/integrations/warehouses/databricks">
+    Unity Catalog via SQL warehouse.
+  </Card>
+  <Card title="ClickHouse" icon="bolt" href="/integrations/warehouses/clickhouse">
+    OLAP for high-volume event data.
+  </Card>
+  <Card title="PostgreSQL" icon="elephant" href="/integrations/warehouses/postgresql">
+    Direct connect or via Tunnel Agent.
+  </Card>
+  <Card title="MySQL / MariaDB" icon="dolphin" href="/integrations/warehouses/mysql">
+    Direct connect or via Tunnel Agent.
+  </Card>
+  <Card title="MS SQL Server" icon="database" href="/integrations/warehouses/mssql">
+    Including Azure SQL. Tunnel Agent supported.
+  </Card>
+  <Card title="Firestore" icon="fire" href="/integrations/warehouses/firestore">
+    Document/NoSQL queries via Google OAuth.
+  </Card>
+</CardGroup>
+
+## Connecting from a private network
+
+If your database isn't publicly reachable, install the [Tunnel Agent](/integrations/developer/tunnel-agent) in your VPC. Datost connects through the agent without you opening any inbound ports.
+
+## Permissions
+
+<Warning>
+  Always use a **read-only** database user for Datost. The product never needs write access.
+</Warning>
+
+Datost respects your org's [role-based access](/workspace/roles-and-permissions) on top of database credentials — so individual users can only query tables their role allows, even if the underlying connection sees more.
+
+## Not a warehouse?
+
+For CRMs, product analytics, and accounting tools, see [business tools](/integrations/business-tools/posthog). For developer / infrastructure sources, see [developer integrations](/integrations/developer/github).

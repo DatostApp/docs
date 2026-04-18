@@ -1,0 +1,51 @@
+---
+title: "Viewing Slack Responses"
+description: "Open any Slack query in the Datost web app to see the full transcript, SQL, charts, and results."
+---
+
+Every time you ask Datost a question in Slack, we save the full record, the prompt, every tool call, the SQL we ran, the raw rows we got back, and the final answer. You can open that record in the web app at `/slack/response/:queryId` to dig into the details, share it with a teammate, or pick up where the thread left off.
+
+<Note>
+Slack is great for a quick answer. The web response page is where you verify the math, inspect the SQL, and explore the underlying data.
+</Note>
+
+## What the response page shows
+
+A Slack response page is a faithful re-render of the conversation, plus everything Datost couldn't fit into a Slack message:
+
+- **Original query** — the exact text you sent, the Slack workspace, and timestamp.
+- **Final answer** — rendered markdown with inline charts (bar, line, area, pie).
+- **Tool calls** — every step Datost took, in order, with status, duration, and expandable input/output. SQL queries get syntax highlighting and a copy button.
+- **Query results** — interactive, sortable tables for every `execute_sql` call, including row counts.
+- **SQL query** — the consolidated SQL block, ready to copy into your warehouse client.
+- **Status + timing** — `processing`, `completed`, or `failed`, plus total duration.
+
+## Opening a response
+
+<Steps>
+  <Step title="From Slack">
+    Click the "View full response" link that Datost posts under its reply. It deep-links to the hosted response page.
+  </Step>
+  <Step title="From query history">
+    In the web app, open **Context → Knowledge Sources → Slack History** and click any thread to jump to that query's response page.
+  </Step>
+  <Step title="Share with a teammate">
+    Copy the page URL. Anyone in your Datost org with access to that Slack connection can open it.
+  </Step>
+</Steps>
+
+<Tip>
+Append `?tab=data` to the URL to auto-scroll and expand the results table — handy when you want a teammate to land directly on the numbers.
+</Tip>
+
+## Iterating on a response
+
+To re-run or refine, reply in the original Slack thread. Datost uses the same thread context (including the prior query's sandbox, when still warm) so follow-ups stay fast and coherent. Copying the SQL from the response page into the web SQL editor is a good path for deeper ad-hoc exploration.
+
+## Access control
+
+Response pages are scoped to your Datost organization. Users outside the org see an access-required prompt; users inside the org with pending access see a request-access flow. Query IDs are unguessable, but treat the URL as org-internal.
+
+## Usage and rate limits
+
+Datost enforces per-user and per-channel rate limits (hourly and daily) on Slack queries. If you hit a limit, Datost replies with a retry-after hint in Slack — the response page itself is always viewable, even for throttled or failed queries, so you can audit exactly what happened.

@@ -1,0 +1,77 @@
+---
+title: "Roles & Permissions"
+description: "RBAC in Datost — built-in admin and member roles, plus custom roles that gate access to data sources, tables, and log connections across Slack and the web app."
+---
+
+Datost's access model has two layers. The **built-in org role** (Admin or Member) controls who can manage the workspace. **Custom roles** control which data a Member can actually see, query, and ask questions about in Slack.
+
+## Built-in roles
+
+Every membership has one of two base roles:
+
+- **Admin** — Full access to everything in the org. Admins can create data sources, invite teammates, define custom roles, and query any table. Custom roles **do not apply** to admins; they always have unrestricted access.
+- **Member** — A regular teammate. Members can use Datost in Slack and the web app, but their access to data is gated by whichever custom role is assigned to them.
+
+<Note>
+  There is no separate Owner tier. Billing and org ownership are managed through your identity provider; inside Datost, Admin is the highest privilege.
+</Note>
+
+## Custom roles
+
+A custom role is an admin-defined bundle of access rules: which data sources, which tables inside those data sources, and which log connections a Member is allowed to touch. Roles live at the org level and are unique by name.
+
+Each org has exactly one **default role**. New members are auto-assigned the default when they first sync, and it's also the role applied to unlinked Slack users in your workspace. The first role you create is automatically marked default.
+
+### Granular access
+
+<AccordionGroup>
+  <Accordion title="Data sources">
+    A role has an allowlist of data source IDs it can see. Omit a warehouse from the role and it's invisible — it won't appear in the UI and the AI won't query it.
+  </Accordion>
+  <Accordion title="Tables (within a data source)">
+    Inside an allowed data source, table access is optional. If no table rules exist, the role sees **all tables** in that warehouse. Once you add even one table rule, the role is restricted to only that allowlist — so be deliberate when you start narrowing.
+  </Accordion>
+  <Accordion title="Log connections">
+    Log providers (Datadog, Sentry, etc.) work like data sources: allowlist per role. Only log connections in the role's list are queryable.
+  </Accordion>
+</AccordionGroup>
+
+## Assigning a role
+
+<Steps>
+  <Step title="Open the Members page">
+    In the web app, go to **Settings → Members**. You'll see every teammate with their built-in role and their custom role (if any).
+  </Step>
+  <Step title="Pick a role">
+    Click a Member and choose a custom role from the dropdown. Admins are filtered out — trying to assign them a custom role returns an error because admins already have full access.
+  </Step>
+  <Step title="Change the default (optional)">
+    Promote a different role to **default** under **Settings → Roles**. New members and unlinked Slack users will pick up the new default on their next request.
+  </Step>
+</Steps>
+
+## How permissions enforce in Slack
+
+RBAC is applied server-side on every request — there's no way to widen your own access from the client.
+
+When you `@Datost` in Slack, the agent resolves your effective role, fetches your allowed data source IDs, log connection IDs, and table lists, and passes them into every tool call. If a table isn't in your allowlist:
+
+- The AI **cannot see** its schema during planning.
+- The AI **cannot query** it, even if you name it directly in your prompt.
+- Results from joined queries are filtered to only the tables you can access.
+
+<Warning>
+  If a Slack user isn't linked to a Datost account, they get the org's **default role**. Lock your default role down to the minimum access you're comfortable exposing to anyone in the Slack workspace.
+</Warning>
+
+## Inheritance and overrides
+
+- **No roles configured** → RBAC is off. Every Member has unrestricted access. The moment you create your first role, enforcement turns on.
+- **New role creation** → The new role inherits only resources that **every** existing role already has. Resources restricted to specific roles are not auto-shared.
+- **New data source or log connection** → Auto-assigned to all existing roles by default, so adding a warehouse doesn't silently hide it. Tighten access afterward if needed.
+- **Deleting a role** → Members on the deleted role are reassigned to the org's default role. You cannot delete the default — promote another role first.
+- **Admins override everything** → Custom role assignments on an admin are ignored; admins always see all data.
+
+<Note>
+  Every role change, assignment, and access update is recorded in the audit log. Review it under **Settings → Audit log** to see who changed what and when.
+</Note>

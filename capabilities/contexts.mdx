@@ -1,0 +1,76 @@
+---
+title: "Contexts"
+description: "The primary AI exploration surface in Datost — a chat conversation with memory, tool use, and artifacts grounded in all your connected data."
+---
+
+A **Context** is a persistent conversation with Datost about your data. It remembers every message, every query it ran, and every artifact it produced, so you can iterate across many turns without re-explaining yourself. Contexts are the default landing page of the Datost web app at `/context` and are the same conversation objects that power Slack threads — a question you ask in `#analytics` lives in the exact same history as one you ask in the browser.
+
+## What a Context includes
+
+Each Context is a long-lived conversation with:
+
+- **Messages** — your questions and Datost's replies, in order.
+- **Runs** — each assistant reply is backed by an `aiRun`, which records every tool call, step of reasoning, and intermediate result the agent produced.
+- **Artifacts** — charts, tables, CSVs, and generated notebooks the agent wrote during a run. These are persisted and downloadable long after the run completes.
+- **Source selection** — which warehouses, repos, log providers, docs, and Slack channels are in scope. RBAC is enforced on the server; you can't widen your own access by toggling sources.
+
+<Note>
+  Contexts in the web app and threads in Slack share the same backing data model. A Slack thread about Q3 churn and a browser Context about Q3 churn are both `conversations` rows — they just render differently.
+</Note>
+
+## Starting a Context
+
+<Steps>
+  <Step title="Open the web app">
+    Navigate to the Datost web app. `/context` is the default route, so a fresh Context is waiting for you.
+  </Step>
+  <Step title="Ask a question">
+    Type a question into the composer — "show me the largest tables by row count", "what errors spiked in the last hour", or anything more specific. Hit Enter to send, Shift+Enter for a newline.
+  </Step>
+  <Step title="Watch it work">
+    Datost streams its reasoning live: which tool it's calling, what SQL it's running, what it found, and what it decided to do next.
+  </Step>
+  <Step title="Follow up">
+    Ask the next question in the same Context. The agent carries the full history forward, including earlier query results.
+  </Step>
+</Steps>
+
+<Tip>
+  You can also kick off a Context from Slack by @-mentioning `@Datost` in any channel or DM. The resulting thread is a Context you can later open in the web app to review artifacts, re-run steps, or branch the conversation.
+</Tip>
+
+## Multi-step reasoning and tool use
+
+Datost is an agent, not a single-shot text model. Inside one reply it may:
+
+- Run SQL against your warehouse, read the results, and follow up with a second query.
+- Search your repos for a dbt model to understand how a metric is defined.
+- Scan log connections or Slack history for context on an anomaly.
+- Render a chart or write a CSV when the answer is best shown visually.
+
+The Activity Feed on the right shows each step as it happens. Every step is expandable so you can inspect the exact SQL, parameters, and raw output.
+
+## Artifacts
+
+Anything non-conversational Datost produces — a Recharts chart, a large table, a CSV export, a generated notebook — becomes an **artifact** attached to the run.
+
+<CardGroup cols={2}>
+  <Card title="Persistent" icon="database">
+    Artifacts live past the stream. Reopen a month-old Context and every chart still renders.
+  </Card>
+  <Card title="Downloadable" icon="download">
+    Click any artifact to download the underlying file — CSV, PNG, or notebook.
+  </Card>
+</CardGroup>
+
+## Sharing and persistence
+
+Contexts are organization-scoped. Any teammate with access to the same data sources can open a Context URL (`/context/{id}`) and see the full history, artifacts, and reasoning. Rename, archive, or delete from the sidebar; archived Contexts collapse into a separate section but remain searchable.
+
+## Power-user tips
+
+- **Enter** sends; **Shift+Enter** inserts a newline.
+- Paste or drag images into the composer to give Datost a screenshot to reason about — useful for debugging dashboards.
+- Click any Activity step to expand its raw tool input and output.
+- Use **New Chat** to start a fresh Context when switching topics — shorter histories keep the agent focused and faster.
+- If a reply is going the wrong direction, hit **Stop** and rephrase — the partial run is preserved in history.

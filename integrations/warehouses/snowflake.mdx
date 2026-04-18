@@ -1,0 +1,93 @@
+---
+title: "Snowflake"
+description: "Connect your Snowflake warehouse so Datost can answer questions against your data in Slack."
+---
+
+Connecting Snowflake lets Datost query your governed warehouse to answer ad-hoc questions, build metrics, and explore tables — all from Slack.
+
+## Prerequisites
+
+Before you start, gather the following from Snowflake:
+
+- **Account identifier** — the part before `.snowflakecomputing.com` in your Snowflake URL (for example `myorg-myaccount`).
+- **Virtual warehouse** — the compute warehouse Datost should run queries on (for example `COMPUTE_WH`).
+- **Username** — a Snowflake user dedicated to Datost.
+- **Credential** — either a password or an RSA private key (PEM format) for key-pair auth.
+- **Database** *(optional)* — a default database to scope queries. If omitted, Datost discovers databases the user can access.
+
+<Tip>
+  We recommend creating a dedicated `DATOST` user and role so you can audit and revoke access independently.
+</Tip>
+
+## Authentication methods
+
+Datost supports two auth methods for Snowflake:
+
+<AccordionGroup>
+  <Accordion title="Password auth">
+    Uses the official Snowflake Node.js driver. Simplest to set up — just provide the username and password.
+  </Accordion>
+  <Accordion title="Key-pair auth (recommended)">
+    Uses an RSA key pair and the Snowflake SQL REST API v2 with JWT. Paste the full PEM-encoded private key, including the `-----BEGIN PRIVATE KEY-----` and `-----END PRIVATE KEY-----` lines. The matching public key must already be assigned to the Snowflake user via `ALTER USER ... SET RSA_PUBLIC_KEY`.
+  </Accordion>
+</AccordionGroup>
+
+## Required permissions
+
+Grant the Datost role the minimum privileges needed to query your data:
+
+<CodeGroup>
+```sql Minimum grants
+-- Compute
+GRANT USAGE ON WAREHOUSE COMPUTE_WH TO ROLE DATOST;
+
+-- Database + schemas
+GRANT USAGE ON DATABASE MY_DB TO ROLE DATOST;
+GRANT USAGE ON ALL SCHEMAS IN DATABASE MY_DB TO ROLE DATOST;
+
+-- Read access to tables and views
+GRANT SELECT ON ALL TABLES IN DATABASE MY_DB TO ROLE DATOST;
+GRANT SELECT ON ALL VIEWS IN DATABASE MY_DB TO ROLE DATOST;
+GRANT SELECT ON FUTURE TABLES IN DATABASE MY_DB TO ROLE DATOST;
+GRANT SELECT ON FUTURE VIEWS IN DATABASE MY_DB TO ROLE DATOST;
+
+-- Assign role to the Datost user
+GRANT ROLE DATOST TO USER DATOST_USER;
+```
+</CodeGroup>
+
+<Note>
+  Datost reads schema metadata from `INFORMATION_SCHEMA` — no extra grants are needed for discovery.
+</Note>
+
+## Connect in the admin panel
+
+<Steps>
+  <Step title="Open the admin panel">
+    Go to **Data Sources** and click **Add data source**.
+  </Step>
+  <Step title="Pick Snowflake">
+    Select the Snowflake tile from the database list.
+  </Step>
+  <Step title="Choose an auth method">
+    Toggle between **Password** and **Key Pair**.
+  </Step>
+  <Step title="Fill in connection details">
+    Enter your account identifier, warehouse, optional database, username, and credential (password or PEM private key).
+  </Step>
+  <Step title="Test and save">
+    Datost runs `SELECT CURRENT_VERSION()` to verify connectivity before saving. If the test fails, the error message from Snowflake is shown inline.
+  </Step>
+</Steps>
+
+## Limitations
+
+- Query results are capped at **1,000 rows** per request; larger result sets are truncated.
+- A `LIMIT` is appended automatically to queries that don't include one.
+- Password-auth connections are cached for **30 minutes** of idle time and then reconnect on next use.
+- Key-pair JWTs are issued with a **59-minute** lifetime and refreshed automatically.
+- When no database is specified, Datost aggregates tables across every database the role can access; databases that error out are silently skipped.
+
+<Warning>
+  Datost executes whatever SQL its agents generate through this connection. Always scope the Datost role to read-only access on the data you want to expose.
+</Warning>
