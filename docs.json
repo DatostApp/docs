@@ -114,11 +114,6 @@
           "anchor": "Book a demo",
           "href": "https://datost.cal.com/founders/30-min",
           "icon": "calendar"
-        },
-        {
-          "anchor": "Changelog",
-          "href": "https://datost.com/changelog",
-          "icon": "clock-rotate-left"
         }
       ]
     }
