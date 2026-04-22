@@ -13,7 +13,7 @@ The [Model Context Protocol](https://modelcontextprotocol.io) is an open standar
 
 Adding an external MCP server mounts its tools into Datost's agent loop. When a question benefits from those tools, the model picks them the same way it picks SQL, PostHog, or HubSpot actions.
 
-- Reach internal systems (ticketing, CRMs, observability) that Datost does not natively support.
+- Reach systems like ticketing, CRM, and observability tools that Datost does not natively support.
 - Wrap proprietary APIs as tools your team can invoke from Slack by mentioning `@Datost`.
 - Use any vendor that ships a hosted MCP endpoint — Linear, Sentry, Notion, and others.
 
@@ -58,13 +58,13 @@ MCP servers are defined at the org level but mounted per Slack connection, so a 
 </Warning>
 
 - Every create/update/test/delete action is written to your audit log.
-- URLs are validated against an optional `EXTERNAL_MCP_ALLOWED_HOSTS` allowlist; private IP ranges, `localhost`, and `.internal`/`.local` hosts are always blocked.
+- URLs are validated before save and test. Private IP ranges, `localhost`, and private-network hostnames are blocked.
 - Headers and OAuth tokens are encrypted with per-record keys.
 - Disable individual tools from a server if you want to keep the connection but narrow the blast radius.
 
 ## Limitations
 
-- HTTPS-only in production; HTTP is allowed only with an explicit dev-mode env flag.
+- HTTPS-only in production.
 - Tool discovery (`tools/list`) requires HTTP transport; SSE servers can be tested but their tools must be managed from the server side.
 - Maximum 25 MCP servers assigned per Slack connection and up to 200 disabled tools per server.
 - Datost mounts tools only — MCP resources and prompts are not surfaced to the agent today.

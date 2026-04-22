@@ -68,7 +68,7 @@ The token's identity needs read access to anything you want Slack users to query
     Both serverless and classic SQL Warehouses work. Serverless starts faster, which makes the first query after an idle period feel more responsive; classic warehouses may cold-start before the 30-second statement wait window.
   </Accordion>
   <Accordion title="Row limits and truncation">
-    Statements run with `format: JSON_ARRAY` and `disposition: INLINE`. Query results are capped (default 1,000 rows) and flagged as `truncated` when the cap is hit. Schema introspection uses higher caps internally.
+    Statements run with `format: JSON_ARRAY` and `disposition: INLINE`. Query results are capped (default 1,000 rows) and flagged as `truncated` when the cap is hit.
   </Accordion>
   <Accordion title="Connection caching">
     Datost caches up to 50 warehouse client entries for 30 minutes each. Rotating a PAT requires re-saving the data source so the cached entry is invalidated.

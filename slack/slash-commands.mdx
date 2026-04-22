@@ -106,10 +106,6 @@ Datost follows Slack's standard response conventions:
 - **Modal** — `/datost schedule` (no subcommand) opens a dialog. Requires a valid `trigger_id`, which Slack only honors for ~3 seconds, so run the command fresh if the modal fails to open.
 - **Channel message** — scheduled reports themselves post to the channel you selected when creating the schedule. The slash commands that manage them do not.
 
-## Dev variant
-
-Datost's internal team also registers `/datost-dev`, which repoints the dev Slack app's event subscription URL to a given preview backend (for example, a Railway PR preview). It's gated behind the dev app's signing secret and is not available to customer workspaces — external users can safely ignore it.
-
 <Note>
 Something not working? Re-run `/datost link` first — many issues are just an expired or missing account link. If the problem persists, reach out to support with the schedule ID (if relevant) and the approximate time you ran the command.
 </Note>

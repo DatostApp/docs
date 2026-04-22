@@ -36,7 +36,7 @@ Other warehouses (Snowflake, BigQuery, Databricks, ClickHouse, MSSQL) are reache
     Launch the app and sign in with your Datost workspace account. The agent fingerprints the device and registers itself under a human-readable name like `alice-macbook-pro`.
   </Step>
   <Step title="Enable the tunnel on a data source">
-    When adding or editing a PostgreSQL or MySQL connection, toggle **Route through Tunnel Agent**. Use the database's internal hostname (e.g. `db.internal`, `10.0.3.14`, `postgres.svc.cluster.local`) — the agent resolves it from inside your network.
+    When adding or editing a PostgreSQL or MySQL connection, toggle **Route through Tunnel Agent**. Use the database's private hostname (for example, `10.0.3.14` or `postgres.svc.cluster.local`) — the agent resolves it from inside your network.
   </Step>
   <Step title="Test the connection">
     Click **Test connection**. Datost dispatches a probe query through any online agent in your workspace. A green check means you're live.

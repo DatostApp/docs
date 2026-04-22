@@ -4,7 +4,7 @@ description: "Long-lived tokens for programmatic access to the Datost API from t
 icon: "key"
 ---
 
-API tokens (internally: app tokens) are long-lived bearer credentials that authenticate a human user to the Datost backend from outside the web app — today primarily the Datost Desktop App. A token is tied to one user and one organization, inherits that user's role and permissions, and is valid for 90 days.
+API tokens are long-lived bearer credentials that authenticate a human user to the Datost backend from outside the web app — today primarily the Datost Desktop App. A token is tied to one user and one organization, inherits that user's role and permissions, and is valid for 90 days.
 
 <Note>
   Datost's public REST API is still small. Today, tokens are issued to and consumed by the Datost Desktop App via a device-authorization flow. Every route behind the standard auth guard accepts either a Clerk session JWT or an app token in the `Authorization` header — as we expose more endpoints publicly, the same token will cover them.
@@ -12,7 +12,7 @@ API tokens (internally: app tokens) are long-lived bearer credentials that authe
 
 ## How tokens work
 
-A Datost API token is a 64-character hex string. When you send it as `Authorization: Bearer <token>`, the server verifies it against the `app_tokens` table and attaches your user, org, and role to the request — exactly as a browser session would. Only the SHA-256 hash is stored in the database, so even a database breach cannot leak usable tokens.
+A Datost API token is a 64-character hex string. When you send it as `Authorization: Bearer <token>`, Datost authenticates the request with the same user, organization, and role context you would have in the web app. Tokens are stored securely so raw token values are not recoverable from storage.
 
 ```bash
 curl https://api.datost.com/me \
