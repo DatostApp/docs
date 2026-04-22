@@ -60,7 +60,7 @@ Each record exposes its standard HubSpot properties (for example `dealname`, `am
 ## Limitations
 
 - **Rate limits** — Datost respects HubSpot's public API rate limits (per-app, per-portal). Very large portals may see paginated or throttled responses on broad queries.
-- **Custom properties** — standard HubSpot properties are supported out of the box. Custom properties are readable but may need to be referenced by their internal name.
+- **Custom properties** — standard HubSpot properties are supported out of the box. Custom properties are readable but may need to be referenced by their property name from HubSpot.
 - **Token refresh** — access tokens auto-refresh in the background. If refresh fails (for example, the app was uninstalled in HubSpot), the connection is flagged and you'll need to reconnect from the admin panel.
 - **Read-only** — Datost cannot create or modify HubSpot records.
 

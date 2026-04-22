@@ -135,9 +135,6 @@
       "href": "https://datost.cal.com/founders/30-min"
     }
   },
-  "contextual": {
-    "options": ["copy", "view", "chatgpt", "claude", "perplexity", "mcp", "cursor", "vscode"]
-  },
   "footer": {
     "socials": {
       "linkedin": "https://www.linkedin.com/company/datost/",
