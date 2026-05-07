@@ -1,0 +1,82 @@
+---
+title: Datost MCP
+description: Connect Datost to an external AI assistant over OAuth-backed Model Context Protocol.
+---
+
+Datost can act as a remote MCP server for AI tools that support HTTP MCP. The tool gets one Datost capability: `ask_datost`.
+
+Use it when you want an assistant outside Datost to ask questions against the same workspace context Datost already understands: warehouses, logs, docs, Slack, repositories, and enabled MCP sources.
+
+## What it unlocks
+
+- Ask Datost from your coding assistant without copying context between tools.
+- Keep Datost access scoped to your signed-in user and active workspace.
+- Use OAuth instead of pasting long-lived bearer tokens into MCP config files.
+
+## Connect an MCP client
+
+<Steps>
+  <Step title="Create the config">
+    In Datost, open **Account settings → Profile → Datost MCP** and click **Create OAuth Config**.
+  </Step>
+  <Step title="Copy the MCP config">
+    Copy the generated JSON and paste it into your MCP client's server configuration.
+  </Step>
+  <Step title="Authorize Datost">
+    When the client connects, it opens Datost in your browser. Sign in, choose the workspace you want to use, and approve the MCP request.
+  </Step>
+  <Step title="List tools">
+    Run the client's MCP tool discovery. You should see `ask_datost`.
+  </Step>
+</Steps>
+
+The config looks like this:
+
+```json
+{
+  "mcpServers": {
+    "datost": {
+      "type": "http",
+      "url": "https://api.datost.com/api/datost/mcp"
+    }
+  }
+}
+```
+
+<Note>
+  Your exact URL may differ for dev, staging, or private deployments. Use the URL Datost generates for your environment.
+</Note>
+
+## Use `ask_datost`
+
+Send `ask_datost` a prompt. Datost creates an Explore conversation, selects the workspace sources visible to you, runs the agent, and returns the final answer to your MCP client.
+
+Example prompts:
+
+- `What changed in revenue this week?`
+- `Summarize recent Slack discussion about the onboarding funnel.`
+- `Check the repo and explain how our subscription sync works.`
+
+You can also pass optional context from the calling assistant. For long-running questions, clients may set `timeoutSeconds` up to 180 seconds.
+
+## OAuth behavior
+
+Datost follows the HTTP MCP OAuth flow:
+
+- The MCP endpoint advertises OAuth protected-resource metadata.
+- Clients dynamically register as public OAuth clients.
+- Authorization uses the OAuth authorization-code flow with PKCE.
+- Access tokens are bound to the Datost MCP resource and the `datost:mcp` scope.
+
+You do not need to create an API token or copy an authorization header manually.
+
+## Security notes
+
+- Datost answers with the same workspace visibility as the approving Datost user.
+- The MCP access token is issued only after browser authorization.
+- Redirect URIs must be HTTPS, except local loopback URLs used by desktop MCP clients.
+- Revoke access by removing the MCP server entry from the client or refreshing the Datost MCP config and reauthorizing.
+
+<Tip>
+  Use short, specific prompts. `ask_datost` is best when you ask a concrete question and let Datost retrieve the supporting workspace context.
+</Tip>
