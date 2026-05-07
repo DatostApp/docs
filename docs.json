@@ -90,6 +90,7 @@
             "pages": [
               "integrations/developer/github",
               "integrations/developer/mcp-servers",
+              "integrations/developer/datost-mcp",
               "integrations/developer/tunnel-agent",
               "integrations/developer/log-connections"
             ]
